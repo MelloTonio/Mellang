@@ -68,8 +68,10 @@ func (l *Lexer) NextToken() Token.Token {
 		tok.Literal = ""
 		tok.Type = Token.EOF
 	default:
+		if isLetter(l.ch) { // É letra?
+			tok.Literal = l.readIdentifier() // a partir desta função retornamos a frase
+		}
 		tok = newToken(Token.ILLEGAL, l.ch)
-
 	}
 
 	l.readChar()
@@ -78,4 +80,18 @@ func (l *Lexer) NextToken() Token.Token {
 
 func newToken(tokenType Token.TokenType, ch byte) Token.Token {
 	return Token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func (l *Lexer) readIdentifier() string {
+	first_position := l.position
+
+	for isLetter(l.ch) {
+		l.readChar()
+	}
+
+	return l.input[first_position:l.position]
+}
+
+func isLetter(ch byte) bool {
+	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
