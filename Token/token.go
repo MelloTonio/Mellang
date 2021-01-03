@@ -53,7 +53,7 @@ var keywords = map[string]TokenType{
 	"moonvar": MOONVAR,
 }
 
-func lookupIdent(identifier string) TokenType {
+func LookupIdent(identifier string) TokenType {
 	if tok, ok := keywords[identifier]; ok {
 		return tok
 	} else {
