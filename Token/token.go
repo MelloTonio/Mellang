@@ -47,3 +47,16 @@ type Token struct {
 	Type    TokenType
 	Literal string
 }
+
+var keywords = map[string]TokenType{
+	"fn":      FUNCTION,
+	"moonvar": MOONVAR,
+}
+
+func lookupIdent(identifier string) TokenType {
+	if tok, ok := keywords[identifier]; ok {
+		return tok
+	} else {
+		return IDENT
+	}
+}
