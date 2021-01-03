@@ -2,3 +2,10 @@ Source code -> Tokens -> AST(Abstract Syntax Tree)
 
 
 let x = 5 + 5; -> LET,IDENTIFIER("x"),EQUAL_SIGN,INTEGER(5),PLUS_SIGN,INTEGER(5),SEMICOLON -> AST
+
+Estrutura do Lexer:
+
+* Com a função New, criamos um novo input (com o valor do texto recebido) e com ponteiros zerados
+
+* Para cada letra do texto iremos definir um Token especifico e a cada vez que lemos uma letra
+a função "readChar()" é chamada, avançando assim um "ponteiro" no texto
