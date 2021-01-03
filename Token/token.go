@@ -51,6 +51,11 @@ type Token struct {
 var keywords = map[string]TokenType{
 	"fn":      FUNCTION,
 	"moonvar": MOONVAR,
+	"true":    TRUE,
+	"false":   FALSE,
+	"if":      IF,
+	"else":    ELSE,
+	"return":  RETURN,
 }
 
 func LookupIdent(identifier string) TokenType {
