@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mellotonio/Andrei_lang/Evaluator"
 	"github.com/Mellotonio/Andrei_lang/Lexer"
+	"github.com/Mellotonio/Andrei_lang/Object"
 	"github.com/Mellotonio/Andrei_lang/Parser"
 )
 
@@ -16,6 +17,7 @@ const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	env := Object.NewEnvironment()
 
 	for {
 		fmt.Printf(PROMPT)
@@ -35,7 +37,7 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		evaluated := Evaluator.Eval(program)
+		evaluated := Evaluator.Eval(program, env)
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect())
 			io.WriteString(out, "\n")

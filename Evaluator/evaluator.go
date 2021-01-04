@@ -57,6 +57,9 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		if isError(val) {
 			return val
 		}
+		env.Set(node.Name.Value, val)
+	case *AST.Identifier:
+		return evalIdentifier(node, env)
 	}
 	return nil
 }
@@ -73,11 +76,6 @@ func evalProgram(program *AST.Program, env *Object.Environment) Object.Object {
 		case *Object.Error:
 			return result
 		}
-	}
-
-	// Encontrou um valor de retorno? retorna automaticamente.
-	if returnValue, ok := result.(*Object.ReturnValue); ok {
-		return returnValue.Value
 	}
 
 	return result
@@ -232,4 +230,12 @@ func isError(obj Object.Object) bool {
 		return obj.Type() == Object.ERROR_OBJ
 	}
 	return false
+}
+
+func evalIdentifier(node *AST.Identifier, env *Object.Environment) Object.Object {
+	val, ok := env.Get(node.Value)
+	if !ok {
+		return newError("identifier not found: " + node.Value)
+	}
+	return val
 }
