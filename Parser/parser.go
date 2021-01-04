@@ -57,6 +57,9 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(Token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(Token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(Token.TRUE, p.parseBoolean)
+	p.registerPrefix(Token.FALSE, p.parseBoolean)
+	p.registerPrefix(Token.LPAREN, p.parseGroupedExpression)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -236,6 +239,19 @@ func (p *Parser) parseInfixExpression(left AST.Expression) AST.Expression {
 	return expression
 }
 
+// Grouped expressions baseiam se nos parenteses, cada parenteses podem apenas ter 2 elementos
+// Porém isso pode ocorrer (2 / (5 + 5)), dois no parenteses mais a dentro, e no de fora... também dois, infix(infix(2), infix(5,5))
+func (p *Parser) parseGroupedExpression() AST.Expression {
+	p.nextToken()
+
+	exp := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(Token.RPAREN) {
+		return nil
+	}
+	return exp
+}
+
 // Transforma um string (que tem valor inteiro) em inteiro.
 func (p *Parser) parseIntegerLiteral() AST.Expression {
 	lit := &AST.LiteralInteger{Token: p.currentToken}
@@ -252,6 +268,10 @@ func (p *Parser) parseIntegerLiteral() AST.Expression {
 
 	return lit
 
+}
+
+func (p *Parser) parseBoolean() AST.Expression {
+	return &AST.Boolean{Token: p.currentToken, Value: p.currentTokenIs(Token.TRUE)}
 }
 
 // Token Atual

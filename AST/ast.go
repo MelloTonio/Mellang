@@ -36,6 +36,12 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
+// DONT STOP TILL GET ENOUGH.... TATANANANANANANA
+type Identifier struct {
+	Token Token.Token
+	Value string
+}
+
 type ExpressionStatement struct {
 	Token      Token.Token
 	Expression Expression
@@ -52,6 +58,18 @@ type InfixExpression struct {
 	Left     Expression
 	Operator string
 	Right    Expression
+}
+
+type Boolean struct {
+	Token Token.Token
+	Value bool
+}
+
+type IfExpression struct {
+	Token       Token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
 }
 
 func (p *Program) TokenLiteral() string {
@@ -94,11 +112,9 @@ func (oe *InfixExpression) String() string {
 	return out.String()
 }
 
-// DONT STOP TILL GET ENOUGH.... TATANANANANANANA
-type Identifier struct {
-	Token Token.Token
-	Value string
-}
+func (b *Boolean) expressionNode()      {}
+func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (b *Boolean) String() string       { return b.Token.Literal }
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
