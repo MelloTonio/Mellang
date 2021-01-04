@@ -2,6 +2,7 @@ package Parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/Mellotonio/Andrei_lang/AST"
 	"github.com/Mellotonio/Andrei_lang/Lexer"
@@ -44,7 +45,17 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.nextToken()
 	p.nextToken()
 
+	p.prefixParseFns = make(map[Token.TokenType]prefixParseFn)
+	// Quando o token for do tipo IDENT, iremos chamar parseIdentifier
+	p.registerPrefix(Token.IDENT, p.parseIdentifier)
+
+	p.registerPrefix(Token.INT, p.parseIntegerLiteral)
+
 	return p
+}
+
+func (p *Parser) parseIdentifier() AST.Expression {
+	return &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
 }
 
 func (p *Parser) nextToken() {
@@ -138,6 +149,23 @@ func (p *Parser) parseExpression(precedence int) AST.Expression {
 	leftexp := prefix()
 
 	return leftexp
+}
+
+func (p *Parser) parseIntegerLiteral() AST.Expression {
+	lit := &AST.LiteralInteger{Token: p.currentToken}
+
+	value, err := strconv.ParseInt(p.currentToken.Literal, 0, 64)
+
+	if err != nil {
+		msg := fmt.Sprintf("Could not parse %q as integer", p.currentToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	lit.Value = value
+
+	return lit
+
 }
 
 func (p *Parser) currentTokenIs(t Token.TokenType) bool {

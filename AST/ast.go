@@ -49,6 +49,11 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+type LiteralInteger struct {
+	Token Token.Token
+	Value int64
+}
+
 func (mv *MoonvarStatement) statementNode()       {}
 func (mv *MoonvarStatement) TokenLiteral() string { return mv.Token.Literal }
 
@@ -57,6 +62,10 @@ func (mv *ReturnStatement) TokenLiteral() string { return mv.Token.Literal }
 
 func (mv *ExpressionStatement) statementNode()       {}
 func (mv *ExpressionStatement) TokenLiteral() string { return mv.Token.Literal }
+
+func (il *LiteralInteger) expressionNode()      {}
+func (il *LiteralInteger) TokenLiteral() string { return il.Token.Literal }
+func (il *LiteralInteger) String() string       { return il.Token.Literal }
 
 type Identifier struct {
 	Token Token.Token
