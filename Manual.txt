@@ -82,3 +82,35 @@ prefix ira executar (parseIntegerLiteral) tendo o valor de 3 e como o p.PeekToke
 assim retornaremos Exoression.Right = 3
 
 No final nosso Ramo a esquerda tem 2 infix(1,2) e um ramo a direita também infix(3)
+
+
+Novamente -> Algoritmo de Vaughan Pratt -> "3 + 4 - 5 * 5" -> (3 + 4)((-5) * 5)
+
+- Tudo começa em "p.ParseExpressionStatement()" e em seguida ja caimos statement.Expression = p.parseExpression(LOWEST), iniciamos parseExpression com a menor precedencia
+
+- Iniciamos a função prefix com 3 sendo o "p.currentToken.Type", ou seja, a função de parseIntegerLiteral será atribuida a prefix
+
+- Guardamos a execução de prefix() em uma variavel leftExp, que nesse caso tera o valor 3, conseguido anteriormente da "parseIntegerLiteral"
+
+- (currentToken = 3) (peekToken = "+") Entramos no loop, infix := p.infixParseFns[Token.PLUS_SIGN], infix := parseInfixExpression()
+
+- (currentToken = +) (peekToken = "4") leftexp = infix(leftexp), ou seja, iniciaremos uma infix carregando o valor anterior (nesta caso 3)
+
+- Left desta infix = 3 | precedence := precendencia (+) = 4 | (currentToken = 4) (peekToken = -) | iniciaremos o lado direito desta infix com  p.parseExpression(precendencia (+))
+
+- Cairemos novamente no inicio de parseExpression, agora com a precedencia diferente, guardamos a execução de prefix() em uma variavel leftExp, que nesse caso tera o valor 4
+
+- Porem ao tentar entrar no loop, percebe-se que a precedencia do "=" e do "-" são iguais, o loop não ira ocorrer e ira retornar o valor 4, o lado direito da primeira infix() sera 4
+
+- 1º Infix (3 + 4) e então voltamos ao primeiro loop, agora com a precedencia = "LOWEST" -> (currentToken = -) (peekToken = 5)
+
+- infix := p.infixParseFns[Token.MINUS] ->  infix := parseInfixExpression(1º Infix)
+
+- 2º Infix terá como seu lado esquerdo ((3 + 4)), precedence := "-", (currentToken = 5) (peekToken = *), e a direita desta 2º infix será p.parseExpression("-")
+
+- Voltaremos a parseExpression tendo leftExp = 5 (mesma operação do integer anterior), e entrando no loop (pois 4 (-) < 5 (*)), (currentToken = *) (peekToken = 5), infix = parseInfixExpression(5)
+
+- Entrando no parseInfixExpression com o lado esquerdo = 5 | precedence := 5 (*), (currentToken = 5) (peekToken = EOF), o lado direito desta infix = p.parseExpression(precedence(*)) 
+
+- infix = 5, sendo que não existe mais nada a frente. Ou seja, isso irá retornar la na segunda vez que ela for chama como uma expressão infix(5,5), que voltará mais um nivel e sera vista
+como infix(infix(3,4), infix(5,5)) 

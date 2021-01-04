@@ -51,16 +51,14 @@ type (
 func New(lexer *Lexer.Lexer) *Parser {
 	p := &Parser{l: lexer, errors: []string{}}
 
+	// Registro de cada função que deve ser chamada ao encontrar determinado "prefix"
 	p.prefixParseFns = make(map[Token.TokenType]prefixParseFn)
-	// Quando o token for do tipo IDENT, iremos chamar parseIdentifier
 	p.registerPrefix(Token.IDENT, p.parseIdentifier)
-
 	p.registerPrefix(Token.INT, p.parseIntegerLiteral)
-
 	p.registerPrefix(Token.BANG, p.parsePrefixExpression)
-
 	p.registerPrefix(Token.MINUS, p.parsePrefixExpression)
 
+	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
 	p.registerInfix(Token.PLUS, p.parseInfixExpression)
 	p.registerInfix(Token.MINUS, p.parseInfixExpression)
@@ -93,10 +91,13 @@ func (p *Parser) noPrefixParseFnError(t Token.TokenType) {
 }
 
 func (p *Parser) ParseProgram() *AST.Program {
+	// Inicializa a AST do nosso programa
 	program := &AST.Program{}
+	// Inicia a cadeia de statements da AST
 	program.Statements = []AST.Statement{}
 
 	for !p.currentTokenIs(Token.EOF) {
+		// Olha o proximo token e "parseia" ele de acordo com o que ele representa
 		stmt := p.ParseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -110,10 +111,14 @@ func (p *Parser) ParseProgram() *AST.Program {
 func (p *Parser) ParseStatement() AST.Statement {
 	switch p.currentToken.Type {
 	case Token.MOONVAR:
+		// Tokens como "moonvar" ou "return" são faceis de diferenciar
+		// Ambos tem um shape pre-definido de como eles devem ser
 		return p.ParseMoonvarStatement()
 	case Token.RETURN:
 		return p.ParseReturnStatement()
 	default:
+		// Expressões representam qualquer expressão depois do "="
+		// O principal cuidado que se deve ter é no momento de realizar operações que possuem precedencia
 		return p.ParseExpressionStatement()
 	}
 }
@@ -123,19 +128,20 @@ func (p *Parser) ParseStatement() AST.Statement {
 func (p *Parser) ParseMoonvarStatement() *AST.MoonvarStatement {
 	statement := &AST.MoonvarStatement{Token: p.currentToken}
 
-	// Espera que o proximo token seja um identifier
+	// Espera que o proximo token seja um identifier, ou seja, o nome da variavel
 	if !p.expectPeek(Token.IDENT) {
 		return nil
 	}
 
-	// The x in 'moonvar x = 1'
+	// Guarda o nome do statement como o "nome" da variavel ex: "moonvar x = 1" -> guardamos o x
 	statement.Name = &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
 
-	// Espera que o proximo identifier seja um "="
+	// Espera que o proximo token seja um "="
 	if !p.expectPeek(Token.ASSIGN) {
 		return nil
 	}
 
+	// TODO
 	for !p.currentTokenIs(Token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -143,6 +149,7 @@ func (p *Parser) ParseMoonvarStatement() *AST.MoonvarStatement {
 	return statement
 }
 
+// Constroi um statement a partir do returnStatement e faz asserções sobre
 func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 	statement := &AST.ReturnStatement{Token: p.currentToken}
 
@@ -158,6 +165,7 @@ func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 	statement := &AST.ExpressionStatement{Token: p.currentToken}
 
+	// Vemos o inicio do algoritmo de Vaughan Pratt aqui
 	statement.Expression = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(Token.SEMICOLON) {
@@ -168,7 +176,7 @@ func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) AST.Expression {
-	// Acha uma função que se encaixa com o token atual
+	// Acha uma função (prefix) que se encaixa com o token atual
 	prefix := p.prefixParseFns[p.currentToken.Type]
 
 	if prefix == nil {
@@ -179,9 +187,9 @@ func (p *Parser) parseExpression(precedence int) AST.Expression {
 	// Executa a função antes capturada, a funçao mais à esquerda
 	leftexp := prefix()
 
-	// Função recursiva aonde pegamos o infix que é sempre a função do proximo token
+	// Função recursiva -> aonde pegamos o infix que é sempre a função do proximo token
 	// Avançamos um token
-	// Jogamos na função do proximo token, a funçao mais à esquerda
+	// Jogamos na função do proximo token, a funçao mais à esquerda (salvando ela na "AST")
 	// Para então no final formarmos uma expressão completa
 	for !p.peekTokenIs(Token.SEMICOLON) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
@@ -205,6 +213,8 @@ func (p *Parser) parsePrefixExpression() AST.Expression {
 
 	p.nextToken()
 
+	// O valor "PREFIX" indica o nivel de precedencia, que é quase o maior possivel
+	// Fazendo com que dessa forma ele retorne sem entrar no loop recursivo
 	expression.Right = p.parseExpression(PREFIX)
 
 	return expression
@@ -219,11 +229,14 @@ func (p *Parser) parseInfixExpression(left AST.Expression) AST.Expression {
 
 	precedence := p.currPrecedence()
 	p.nextToken()
+	// Recursividade -> chama a parseExpression sempre com um token a frente da precedencia
+	// e desse forma gera um loop que guarda as expressões de 2 em 2 até encontrar Token.SEMICOLON
 	expression.Right = p.parseExpression(precedence)
 
 	return expression
 }
 
+// Transforma um string (que tem valor inteiro) em inteiro.
 func (p *Parser) parseIntegerLiteral() AST.Expression {
 	lit := &AST.LiteralInteger{Token: p.currentToken}
 
@@ -241,10 +254,12 @@ func (p *Parser) parseIntegerLiteral() AST.Expression {
 
 }
 
+// Token Atual
 func (p *Parser) currentTokenIs(t Token.TokenType) bool {
 	return p.currentToken.Type == t
 }
 
+// Proximo Token
 func (p *Parser) peekTokenIs(t Token.TokenType) bool {
 	return p.peekToken.Type == t
 }
