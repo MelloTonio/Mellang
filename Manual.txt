@@ -9,3 +9,32 @@ Estrutura do Lexer:
 
 * Para cada letra do texto iremos definir um Token especifico e a cada vez que lemos uma letra
 a função "readChar()" é chamada, avançando assim um "ponteiro" no texto
+
+* Dentro da estrutura do lexer, temos ponteiros que indicam a posição atual e a proxima posição,
+dessa forma, podemos facilmente capturar palavras completas ou até mesmo utilizar a proxima posição
+para facilitar leituras como a do "!=" e a do "=="
+
+* Inicialmente, verificamos se o caractere em questão é um simbolo, se sim, devolvemos o respectivo Token daquele
+simbolo, se não, temos que jogar esse caractere em filtros, verificando se ele é um caractere (e até onde ele vai)
+até por que, dessa forma podemos capturar uma palavra inteira, e para isso usamos o ramo default do switch, verificamos 
+primeiro se ele se encaixa como caractere ou numero e dessa forma colocamos a função "readChar()" em um loop aonde
+será possivel descobrir o inicio e o fim dessa palavra ou numero. Se a palavra em questão for uma keyword reservada,
+devemos então devolver o token correspondente a essa keyword, se não, ele é apenas um identifier.
+
+Estrutura do Repl:
+
+* O repl apenas pega input do teclado e utiliza a função do lexer "nextToken()" para nos mostrar
+quais tokens se encaixam naquilo que foi digitado pelo usuário.
+
+Estrutura do Parser:
+
+MoonvarStatements -> Assim como fizemos com os caracteres, teremos que fazer um parse nos tokens, para cada
+moonvarStatement, teremos que formar "moonvar <identifier> = <expression>"
+
+Parseando expressoes: Primeiramente, temos um map que conecta Tipos de Token com Funçoes, a partir disso
+classificamos que quando a maquina se deparar com determinado tipo de token, ela deve executar a função
+respectiva desse token, por exemplo "-5", que é uma expressão de prefix
+
+ex: Registramos "p.registerPrefix(Token.MINUS, p.parsePrefixExpression)"
+ao bater um "-" ele ira executar p.parsePrefixExpression, que guarda esse valor e chama o proximo token
+que seria o token do 5 aonde está registrado de outra forma "p.registerPrefix(Token.INT, p.parseIntegerLiteral)"
