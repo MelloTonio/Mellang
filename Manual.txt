@@ -31,10 +31,13 @@ Estrutura do Parser:
 MoonvarStatements -> Assim como fizemos com os caracteres, teremos que fazer um parse nos tokens, para cada
 moonvarStatement, teremos que formar "moonvar <identifier> = <expression>"
 
-Parseando expressoes: Primeiramente, temos um map que conecta Tipos de Token com Funçoes, a partir disso
+Parseando expressoes (prefix): Primeiramente, temos um map que conecta Tipos de Token com Funçoes, a partir disso
 classificamos que quando a maquina se deparar com determinado tipo de token, ela deve executar a função
 respectiva desse token, por exemplo "-5", que é uma expressão de prefix
 
 ex: Registramos "p.registerPrefix(Token.MINUS, p.parsePrefixExpression)"
 ao bater um "-" ele ira executar p.parsePrefixExpression, que guarda esse valor e chama o proximo token
 que seria o token do 5 aonde está registrado de outra forma "p.registerPrefix(Token.INT, p.parseIntegerLiteral)"
+ao executar p.parseIntegerLiteral, teremos o lado direito da operação, no caso o "5" como numero inteiro
+
+Dessa forma no final nossa expressão ficara como AST{Token: Token.Minus, Operator: "-", Right: 5}

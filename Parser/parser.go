@@ -11,7 +11,6 @@ import (
 
 const (
 	_int = iota
-
 	LOWEST
 	EQUALS
 	LESSGREATER
@@ -20,6 +19,17 @@ const (
 	PREFIX
 	CALL
 )
+
+var precedences = map[Token.TokenType]int{
+	Token.EQ:       EQUALS,
+	Token.NOT_EQ:   EQUALS,
+	Token.LT:       LESSGREATER,
+	Token.GT:       LESSGREATER,
+	Token.PLUS:     SUM,
+	Token.MINUS:    SUM,
+	Token.SLASH:    PRODUCT,
+	Token.ASTERISK: PRODUCT,
+}
 
 type Parser struct {
 	l *Lexer.Lexer
@@ -41,10 +51,6 @@ type (
 func New(lexer *Lexer.Lexer) *Parser {
 	p := &Parser{l: lexer, errors: []string{}}
 
-	// Duas vezes para termos valores tanto no curToken como no peekToken
-	p.nextToken()
-	p.nextToken()
-
 	p.prefixParseFns = make(map[Token.TokenType]prefixParseFn)
 	// Quando o token for do tipo IDENT, iremos chamar parseIdentifier
 	p.registerPrefix(Token.IDENT, p.parseIdentifier)
@@ -54,6 +60,20 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.BANG, p.parsePrefixExpression)
 
 	p.registerPrefix(Token.MINUS, p.parsePrefixExpression)
+
+	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
+	p.registerInfix(Token.PLUS, p.parseInfixExpression)
+	p.registerInfix(Token.MINUS, p.parseInfixExpression)
+	p.registerInfix(Token.SLASH, p.parseInfixExpression)
+	p.registerInfix(Token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(Token.EQ, p.parseInfixExpression)
+	p.registerInfix(Token.NOT_EQ, p.parseInfixExpression)
+	p.registerInfix(Token.LT, p.parseInfixExpression)
+	p.registerInfix(Token.GT, p.parseInfixExpression)
+
+	// Duas vezes para termos valores tanto no curToken como no peekToken
+	p.nextToken()
+	p.nextToken()
 
 	return p
 }
@@ -76,11 +96,10 @@ func (p *Parser) ParseProgram() *AST.Program {
 	program := &AST.Program{}
 	program.Statements = []AST.Statement{}
 
-	// Iteramos sobre os tokens até encontrarmos o fim do texto
-	for p.currentToken.Type != Token.EOF {
-		statement := p.ParseStatement()
-		if statement != nil {
-			program.Statements = append(program.Statements, statement)
+	for !p.currentTokenIs(Token.EOF) {
+		stmt := p.ParseStatement()
+		if stmt != nil {
+			program.Statements = append(program.Statements, stmt)
 		}
 		p.nextToken()
 	}
@@ -149,6 +168,7 @@ func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) AST.Expression {
+	// Acha uma função que se encaixa com o token atual
 	prefix := p.prefixParseFns[p.currentToken.Type]
 
 	if prefix == nil {
@@ -156,7 +176,23 @@ func (p *Parser) parseExpression(precedence int) AST.Expression {
 		return nil
 	}
 
+	// Executa a função antes capturada, a funçao mais à esquerda
 	leftexp := prefix()
+
+	// Função recursiva aonde pegamos o infix que é sempre a função do proximo token
+	// Avançamos um token
+	// Jogamos na função do proximo token, a funçao mais à esquerda
+	// Para então no final formarmos uma expressão completa
+	for !p.peekTokenIs(Token.SEMICOLON) && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.peekToken.Type]
+
+		if infix == nil {
+			return leftexp
+		}
+		p.nextToken()
+
+		leftexp = infix(leftexp)
+	}
 
 	return leftexp
 }
@@ -170,6 +206,20 @@ func (p *Parser) parsePrefixExpression() AST.Expression {
 	p.nextToken()
 
 	expression.Right = p.parseExpression(PREFIX)
+
+	return expression
+}
+
+func (p *Parser) parseInfixExpression(left AST.Expression) AST.Expression {
+	expression := &AST.InfixExpression{
+		Token:    p.currentToken,
+		Operator: p.currentToken.Literal,
+		Left:     left,
+	}
+
+	precedence := p.currPrecedence()
+	p.nextToken()
+	expression.Right = p.parseExpression(precedence)
 
 	return expression
 }
@@ -225,4 +275,20 @@ func (p *Parser) registerPrefix(tokenType Token.TokenType, fn prefixParseFn) {
 
 func (p *Parser) registerInfix(tokenType Token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) peekPrecedence() int {
+	if p, ok := precedences[p.peekToken.Type]; ok {
+		return p
+	}
+
+	return LOWEST
+}
+
+func (p *Parser) currPrecedence() int {
+	if p, ok := precedences[p.currentToken.Type]; ok {
+		return p
+	}
+
+	return LOWEST
 }

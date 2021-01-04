@@ -47,6 +47,13 @@ type PrefixExpression struct {
 	Right    Expression
 }
 
+type InfixExpression struct {
+	Token    Token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -73,6 +80,21 @@ func (il *LiteralInteger) expressionNode()      {}
 func (il *LiteralInteger) TokenLiteral() string { return il.Token.Literal }
 func (il *LiteralInteger) String() string       { return il.Token.Literal }
 
+func (oe *InfixExpression) expressionNode()      {}
+func (oe *InfixExpression) TokenLiteral() string { return oe.Token.Literal }
+func (oe *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(oe.Left.String())
+	out.WriteString(" " + oe.Operator + " ")
+	out.WriteString(oe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// DONT STOP TILL GET ENOUGH.... TATANANANANANANA
 type Identifier struct {
 	Token Token.Token
 	Value string
@@ -107,6 +129,7 @@ func (p *Program) String() string {
 	for _, s := range p.Statements {
 		out.WriteString(s.String())
 	}
+
 	return out.String()
 }
 
