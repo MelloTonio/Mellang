@@ -41,3 +41,44 @@ que seria o token do 5 aonde está registrado de outra forma "p.registerPrefix(T
 ao executar p.parseIntegerLiteral, teremos o lado direito da operação, no caso o "5" como numero inteiro
 
 Dessa forma no final nossa expressão ficara como AST{Token: Token.Minus, Operator: "-", Right: 5}
+
+
+Algoritmo de Parsing (Pratt)
+
+Neste exemplo usaremos a expressão: "1 + 2 + 3", mas não devemos simplesmente realizar 1 + 2 + 3
+e sim separar corretamente como a expressão deveria ocorrer, ex: ((1 + 2 ) + 3)
+
+Quando digitamos "1 + 2 + 3", a função parseExpressionStatement chama parseExpression(LOWEST)
+-> Neste caso p.CurrentToken = 1 e p.PeekToken = "+"
+
+Então checamos por um prefixo associado com o token atual, no caso "Token.INT" que tem a função
+(parseIntegerLiteral), que retorna um inteiro (1)
+
+leftExp passa a ter o valor de 1, a partir dai entramos em um loop aonde será checado se
+o proximo token é uma ";", que indica o final, ou se a precedencia dele é menor do que a do proximo
+
+infix passa a ter o valor da função do token atual, no caso "+", chamamos a função para enxergar
+o proximo token (p.CurrentToken = +, p.peekToken = "2")
+
+ponto "marca" -> quando chamamos infix() passando como argumento leftExp, estamos pegando o 1 da função anterior e passando
+para o infix como "expressão mais a esquerda", então salvamos a precedencia do "+", avançamos para o proximo token
+(p.CurrentToken = 2, p.Peektoken = "+") e salvamos ainda nesta expressão, o expression.Right como sendo = p.parseExpression(precedence)
+
+entrando na parseExpression novamente, agora com a precedencia do primeiro "+", porém antes nos deparamos
+com mais uma "prefix" que busca pela função respectiva ao "2", novamente "Token.INT" que tem a função
+(parseIntegerLiteral). leftExp agora tem o valor de 2 e ele em seguida é retornado pois, a precedencia
+do segundo "+" é igual a do primeiro, e não menor
+
+Voltando a função infix, a que chamou expression.Right = p.parseExpression(precedence), agora temos que o valor
+do braço esquerdo é 1 e do direito é 2
+
+O programa agora volta ao ponto "marca" só que com a leftExp tendo dois ramos (1, 2) e a precedencia ainda é lowest,
+pois o acumulo de precedencia foi apenas no loop interno. Apos isso chamamos a função do proximo token 
+que ainda é ("+"), avança o token (p.CurrentToken = +, p.Peektoken = "3") e cria mais um ramo de "leftexp" que executa infix((1,2))
+
+Apos isso setamos a precedencia como a do "+", pulamos mais um token (p.CurrentToken = 3, p.Peektoken = ";") e Para
+o ramo direito dessa expressão chamamos a função p.parseExpression(precedence of "+"), o que ira ocorrer sera que
+prefix ira executar (parseIntegerLiteral) tendo o valor de 3 e como o p.PeekToken == ";" o loop não será executado e
+assim retornaremos Exoression.Right = 3
+
+No final nosso Ramo a esquerda tem 2 infix(1,2) e um ramo a direita também infix(3)
