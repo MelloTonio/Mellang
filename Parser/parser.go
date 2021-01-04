@@ -29,6 +29,7 @@ var precedences = map[Token.TokenType]int{
 	Token.MINUS:    SUM,
 	Token.SLASH:    PRODUCT,
 	Token.ASTERISK: PRODUCT,
+	Token.LPAREN:   CALL,
 }
 
 type Parser struct {
@@ -73,6 +74,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerInfix(Token.NOT_EQ, p.parseInfixExpression)
 	p.registerInfix(Token.LT, p.parseInfixExpression)
 	p.registerInfix(Token.GT, p.parseInfixExpression)
+	p.registerInfix(Token.LPAREN, p.parseCallExpression)
 
 	// Duas vezes para termos valores tanto no curToken como no peekToken
 	p.nextToken()
@@ -146,8 +148,12 @@ func (p *Parser) ParseMoonvarStatement() *AST.MoonvarStatement {
 		return nil
 	}
 
-	// TODO
-	for !p.currentTokenIs(Token.SEMICOLON) {
+	p.nextToken()
+
+	// Avalia a proxima expressão, após o sinal de =
+	statement.Value = p.parseExpression(LOWEST)
+
+	for p.currentTokenIs(Token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -160,7 +166,9 @@ func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 
 	p.nextToken()
 
-	for !p.currentTokenIs(Token.SEMICOLON) {
+	statement.ReturnValue = p.parseExpression(LOWEST)
+
+	for p.currentTokenIs(Token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -362,6 +370,40 @@ func (p *Parser) parseFunctionParameters() []*AST.Identifier {
 	}
 
 	return identifiers
+}
+
+// Captura a call, preenchendo seus argumentos
+func (p *Parser) parseCallExpression(function AST.Expression) AST.Expression {
+	exp := &AST.CallExpression{Token: p.currentToken, Function: function}
+	exp.Arguments = p.parseCallArguments()
+	return exp
+}
+
+func (p *Parser) parseCallArguments() []AST.Expression {
+	args := []AST.Expression{}
+
+	if p.peekTokenIs(Token.RPAREN) {
+		p.nextToken()
+		return args
+	}
+
+	p.nextToken()
+
+	// Inicia o "parseamento" dos argumentos chamados
+	args = append(args, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(Token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		args = append(args, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(Token.RPAREN) {
+		p.nextToken()
+		return args
+	}
+
+	return args
 }
 
 // Transforma um string (que tem valor inteiro) em inteiro.
