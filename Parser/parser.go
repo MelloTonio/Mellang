@@ -61,6 +61,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.FALSE, p.parseBoolean)
 	p.registerPrefix(Token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(Token.IF, p.parseIfExpression)
+	p.registerPrefix(Token.FUNCTION, p.parseFunctionLiteral)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -308,6 +309,59 @@ func (p *Parser) parseBlockStatement() *AST.BlockStatement {
 		p.nextToken()
 	}
 	return block
+}
+
+func (p *Parser) parseFunctionLiteral() AST.Expression {
+	lit := &AST.FunctionLiteral{Token: p.currentToken}
+
+	if !p.expectPeek(Token.LPAREN) {
+		return nil
+	}
+
+	lit.Parameters = p.parseFunctionParameters()
+
+	if !p.expectPeek(Token.LBRACE) {
+		return nil
+	}
+
+	lit.Body = p.parseBlockStatement()
+
+	return lit
+
+}
+
+func (p *Parser) parseFunctionParameters() []*AST.Identifier {
+	identifiers := []*AST.Identifier{}
+
+	// Checa se é uma função vazia, fn()
+	if p.peekTokenIs(Token.RPAREN) {
+		p.nextToken()
+		return identifiers
+	}
+
+	// Captura o primeiro valor
+	p.nextToken()
+
+	// Guarda o primeiro valor num identifier
+	ident := &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
+	identifiers = append(identifiers, ident)
+
+	// Se o proximo token for uma vigula
+	for p.peekTokenIs(Token.COMMA) {
+		// Pula valor anterior
+		p.nextToken()
+		// Pula virgula
+		p.nextToken()
+		ident := &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+
+	// Verifica se a função termina com ")"
+	if !p.expectPeek(Token.RPAREN) {
+		return nil
+	}
+
+	return identifiers
 }
 
 // Transforma um string (que tem valor inteiro) em inteiro.

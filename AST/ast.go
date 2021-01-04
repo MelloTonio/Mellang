@@ -2,6 +2,7 @@ package AST
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/Mellotonio/Andrei_lang/Token"
 )
@@ -77,6 +78,12 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
+type FunctionLiteral struct {
+	Token      Token.Token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -136,6 +143,25 @@ func (bs *BlockStatement) String() string {
 		out.WriteString(s.String())
 	}
 
+	return out.String()
+}
+
+func (fl *FunctionLiteral) expressionNode()      {}
+func (fl *FunctionLiteral) TokenLiteral() string { return fl.Token.Literal }
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
 	return out.String()
 }
 
