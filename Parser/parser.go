@@ -8,6 +8,18 @@ import (
 	"github.com/Mellotonio/Andrei_lang/Token"
 )
 
+const (
+	_int = iota
+
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
 type Parser struct {
 	l *Lexer.Lexer
 
@@ -15,7 +27,15 @@ type Parser struct {
 	peekToken    Token.Token
 
 	errors []string
+
+	prefixParseFns map[Token.TokenType]prefixParseFn
+	infixParseFns  map[Token.TokenType]infixParseFn
 }
+
+type (
+	prefixParseFn func() AST.Expression
+	infixParseFn  func(AST.Expression) AST.Expression
+)
 
 func New(lexer *Lexer.Lexer) *Parser {
 	p := &Parser{l: lexer, errors: []string{}}
@@ -55,7 +75,7 @@ func (p *Parser) ParseStatement() AST.Statement {
 	case Token.RETURN:
 		return p.ParseReturnStatement()
 	default:
-		return nil
+		return p.ParseExpressionStatement()
 	}
 }
 
@@ -96,6 +116,30 @@ func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 	return statement
 }
 
+func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
+	statement := &AST.ExpressionStatement{Token: p.currentToken}
+
+	statement.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(Token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
+func (p *Parser) parseExpression(precedence int) AST.Expression {
+	prefix := p.prefixParseFns[p.currentToken.Type]
+
+	if prefix == nil {
+		return nil
+	}
+
+	leftexp := prefix()
+
+	return leftexp
+}
+
 func (p *Parser) currentTokenIs(t Token.TokenType) bool {
 	return p.currentToken.Type == t
 }
@@ -122,4 +166,12 @@ func (p *Parser) Errors() []string {
 func (p *Parser) peekError(t Token.TokenType) {
 	message := fmt.Sprintf("Expected next token to bem %s, got %s instead", t, p.peekToken.Type)
 	p.errors = append(p.errors, message)
+}
+
+func (p *Parser) registerPrefix(tokenType Token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType Token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
