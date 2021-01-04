@@ -26,6 +26,11 @@ type MoonvarStatement struct {
 	Value Expression  // Expressão que a variavel está recebendo
 }
 
+type ReturnStatement struct {
+	Token       Token.Token
+	ReturnValue Expression
+}
+
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -36,6 +41,9 @@ func (p *Program) TokenLiteral() string {
 
 func (mv *MoonvarStatement) statementNode()       {}
 func (mv *MoonvarStatement) TokenLiteral() string { return mv.Token.Literal }
+
+func (mv *ReturnStatement) statementNode()       {}
+func (mv *ReturnStatement) TokenLiteral() string { return mv.Token.Literal }
 
 type Identifier struct {
 	Token Token.Token

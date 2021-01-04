@@ -52,6 +52,8 @@ func (p *Parser) ParseStatement() AST.Statement {
 	switch p.currentToken.Type {
 	case Token.MOONVAR:
 		return p.ParseMoonvarStatement()
+	case Token.RETURN:
+		return p.ParseReturnStatement()
 	default:
 		return nil
 	}
@@ -82,6 +84,18 @@ func (p *Parser) ParseMoonvarStatement() *AST.MoonvarStatement {
 	return statement
 }
 
+func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
+	statement := &AST.ReturnStatement{Token: p.currentToken}
+
+	p.nextToken()
+
+	for !p.currentTokenIs(Token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
+}
+
 func (p *Parser) currentTokenIs(t Token.TokenType) bool {
 	return p.currentToken.Type == t
 }
@@ -96,6 +110,7 @@ func (p *Parser) expectPeek(t Token.TokenType) bool {
 		p.nextToken()
 		return true
 	} else {
+		p.peekError(t)
 		return false
 	}
 }
