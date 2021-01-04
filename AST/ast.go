@@ -72,6 +72,11 @@ type IfExpression struct {
 	Alternative *BlockStatement
 }
 
+type BlockStatement struct {
+	Token      Token.Token // { token
+	Statements []Statement
+}
+
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -121,6 +126,18 @@ func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 
 func (pe *PrefixExpression) expressionNode()      {}
 func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
+
+func (bs *BlockStatement) statementNode()       {}
+func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatement) String() string {
+	var out bytes.Buffer
+
+	for _, s := range bs.Statements {
+		out.WriteString(s.String())
+	}
+
+	return out.String()
+}
 
 func (pe *PrefixExpression) String() string {
 	var out bytes.Buffer

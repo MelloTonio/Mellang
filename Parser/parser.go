@@ -60,6 +60,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.TRUE, p.parseBoolean)
 	p.registerPrefix(Token.FALSE, p.parseBoolean)
 	p.registerPrefix(Token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(Token.IF, p.parseIfExpression)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -250,6 +251,63 @@ func (p *Parser) parseGroupedExpression() AST.Expression {
 		return nil
 	}
 	return exp
+}
+
+func (p *Parser) parseIfExpression() AST.Expression {
+	expression := &AST.IfExpression{Token: p.currentToken}
+
+	// Espera que o inicio da expressão seja (
+	if !p.expectPeek(Token.LPAREN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	// Parseia o que está entre parenteses
+	expression.Condition = p.parseExpression(LOWEST)
+
+	// Espera o fechamento do parenteses )
+	if !p.expectPeek(Token.RPAREN) {
+		return nil
+	}
+
+	// Espera o inicio do {
+	if !p.expectPeek(Token.LBRACE) {
+		return nil
+	}
+
+	expression.Consequence = p.parseBlockStatement()
+
+	// Apos o parse do if (...){} verificamos se o proximo token é um ELSE, para então começarmos a evaluar novamente else{...}
+	if p.peekTokenIs(Token.ELSE) {
+		p.nextToken()
+
+		if !p.expectPeek(Token.LBRACE) {
+			return nil
+		}
+
+		expression.Alternative = p.parseBlockStatement()
+	}
+
+	return expression
+}
+
+func (p *Parser) parseBlockStatement() *AST.BlockStatement {
+	block := &AST.BlockStatement{Token: p.currentToken}
+
+	block.Statements = []AST.Statement{}
+
+	p.nextToken()
+
+	// Enquanto um } não é encontrado, continuamos "parseando" a expressão
+	for !p.currentTokenIs(Token.RBRACE) && !p.currentTokenIs(Token.EOF) {
+		statement := p.ParseStatement()
+		if statement != nil {
+			block.Statements = append(block.Statements, statement)
+		}
+		p.nextToken()
+	}
+	return block
 }
 
 // Transforma um string (que tem valor inteiro) em inteiro.
