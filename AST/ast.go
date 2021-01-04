@@ -41,6 +41,12 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
+type PrefixExpression struct {
+	Token    Token.Token
+	Operator string
+	Right    Expression
+}
+
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -74,6 +80,20 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+
+func (pe *PrefixExpression) expressionNode()      {}
+func (pe *PrefixExpression) TokenLiteral() string { return pe.Token.Literal }
+
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
 
 // AST TREE
 /*
