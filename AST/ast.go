@@ -22,8 +22,8 @@ type Program struct {
 
 type MoonvarStatement struct {
 	Token Token.Token
-	Name  *Identifier // Nome da variavel 
-	Value Expression // Expressão que a variavel está recebendo
+	Name  *Identifier // Nome da variavel
+	Value Expression  // Expressão que a variavel está recebendo
 }
 
 func (p *Program) TokenLiteral() string {
@@ -32,21 +32,22 @@ func (p *Program) TokenLiteral() string {
 	} else {
 		return ""
 	}
+}
 
-func (mv *MoonvarExpression) statementNode() {}
-func (mv *MoonvarExpression) TokenLiteral() string  { return mv.Token.Literal}
+func (mv *MoonvarStatement) statementNode()       {}
+func (mv *MoonvarStatement) TokenLiteral() string { return mv.Token.Literal }
 
 type Identifier struct {
 	Token Token.Token
 	Value string
 }
 
-func (i *Identifier) expressionNode() {}
-func (i *Identifier) TokenLiteral() string  { return i.Token.Literal}
+func (i *Identifier) expressionNode()      {}
+func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 
 // AST TREE
 /*
-STATEMENTS -> MoonvarStatement (name, value) 
+STATEMENTS -> MoonvarStatement (name, value)
 								 |		|_____Expression
-						     Identifier		 
-								 */
+						     Identifier
+*/
