@@ -153,7 +153,7 @@ func (p *Parser) ParseMoonvarStatement() *AST.MoonvarStatement {
 	// Avalia a proxima expressão, após o sinal de =
 	statement.Value = p.parseExpression(LOWEST)
 
-	for p.currentTokenIs(Token.SEMICOLON) {
+	for p.peekTokenIs(Token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -168,7 +168,7 @@ func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 
 	statement.ReturnValue = p.parseExpression(LOWEST)
 
-	for p.currentTokenIs(Token.SEMICOLON) {
+	for p.peekTokenIs(Token.SEMICOLON) {
 		p.nextToken()
 	}
 
