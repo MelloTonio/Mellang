@@ -48,6 +48,9 @@ func (l *Lexer) NextToken() Token.Token {
 		}
 	case '+':
 		tok = newToken(Token.PLUS, l.ch)
+	case '"':
+		tok.Type = Token.STRING
+		tok.Literal = l.readString()
 	case '-':
 		tok = newToken(Token.MINUS, l.ch)
 	case '!':
@@ -143,4 +146,18 @@ func (l *Lexer) peekChar() byte {
 	} else {
 		return l.input[l.readPosition]
 	}
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+
+	// Le a string até o final, representado pelo fechamento "
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+
+	return l.input[position:l.position]
 }

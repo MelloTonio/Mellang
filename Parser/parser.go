@@ -63,6 +63,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(Token.IF, p.parseIfExpression)
 	p.registerPrefix(Token.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefix(Token.STRING, p.parseStringLiteral)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -425,6 +426,9 @@ func (p *Parser) parseIntegerLiteral() AST.Expression {
 
 	return lit
 
+}
+func (p *Parser) parseStringLiteral() AST.Expression {
+	return &AST.StringLiteral{Token: p.currentToken, Value: p.currentToken.Literal}
 }
 
 func (p *Parser) parseBoolean() AST.Expression {
