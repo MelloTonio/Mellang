@@ -1,7 +1,7 @@
 # :melon: Mellang :melon:
 > Mellang, an interpreted programming language
 
-We can do almos anything that a basic programming language does:
+We can do almost anything that a basic programming language does:
 ## Mellang has:
 * Integers
 * Strings
