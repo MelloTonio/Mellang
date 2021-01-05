@@ -67,6 +67,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.IF, p.parseIfExpression)
 	p.registerPrefix(Token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(Token.STRING, p.parseStringLiteral)
+	p.registerPrefix(Token.LBRACE, p.parseHashLiteral)
 	p.registerPrefix(Token.LBRACKET, p.parseArrayLiteral)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
@@ -429,6 +430,35 @@ func (p *Parser) parseIndexExpression(left AST.Expression) AST.Expression {
 	}
 
 	return exp
+}
+
+func (p *Parser) parseHashLiteral() AST.Expression {
+	hash := &AST.HashLiteral{Token: p.currentToken}
+	hash.Pairs = make(map[AST.Expression]AST.Expression)
+
+	// Enquanto não achar o final do } do hash
+	for !p.peekTokenIs(Token.RBRACE) {
+		p.nextToken()
+		key := p.parseExpression(LOWEST)
+
+		// Separação : do hash
+		if !p.expectPeek(Token.COLON) {
+			return nil
+		}
+
+		p.nextToken()
+		value := p.parseExpression(LOWEST)
+		hash.Pairs[key] = value
+
+		if !p.peekTokenIs(Token.RBRACE) && !p.expectPeek(Token.COMMA) {
+			return nil
+		}
+	}
+	if !p.expectPeek(Token.RBRACE) {
+		return nil
+	}
+	return hash
+
 }
 
 // Transforma um string (que tem valor inteiro) em inteiro.

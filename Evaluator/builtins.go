@@ -3,6 +3,7 @@ package Evaluator
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/Mellotonio/Andrei_lang/Object"
@@ -108,7 +109,7 @@ var builtins = map[string]*Object.Builtin{
 	"push": &Object.Builtin{
 		Fn: func(args ...Object.Object) Object.Object {
 			if len(args) != 2 {
-				return newError("wrong number of arguments. got=%d, want=1", len(args))
+				return newError("wrong number of arguments. got=%d, want=2", len(args))
 			}
 			if args[0].Type() != Object.ARRAY_OBJ {
 				return newError("Argument to first must be array. got=%s, want=Array", args[0].Type())
@@ -123,6 +124,31 @@ var builtins = map[string]*Object.Builtin{
 
 			return &Object.Array{Elements: newElements}
 
+		},
+	},
+	"replace": &Object.Builtin{
+		Fn: func(args ...Object.Object) Object.Object {
+			if len(args) != 3 {
+				return newError("wrong number of arguments. got=%d, want=3", len(args))
+			}
+			if args[0].Type() != Object.STRING {
+				return newError("Argument to first must be array. got=%s, want=Array", args[0].Type())
+			}
+
+			to_be_changed := args[0].(*Object.String)
+			to_remove := args[1].(*Object.String)
+			to_put := args[2].(*Object.String)
+
+			return &Object.String{Value: strings.Replace(to_be_changed.Value, to_remove.Value, to_put.Value, 3)}
+
+		},
+	},
+	"SHOUT": &Object.Builtin{
+		Fn: func(args ...Object.Object) Object.Object {
+			for _, arg := range args {
+				return &Object.String{Value: arg.Inspect()}
+			}
+			return NULL
 		},
 	},
 }
