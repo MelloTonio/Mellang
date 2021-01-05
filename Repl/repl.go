@@ -13,36 +13,46 @@ import (
 
 // READ EVAL PRINT LOOP
 
-var Misterious *string
-
 const PROMPT = ">> "
+
+const REDUCE = `moonvar reduce=fn(arr, initial, f){ moonvar iter = fn(arr,result){
+	 if(len(arr)==0){ 
+		result 
+		} else {
+			iter(rest(arr),f(result,first(arr)));}
+		};
+	iter(arr,initial);
+	};`
+
+const MAP = `moonvar map = fn(arr,f){
+		moonvar iter = fn(arr,accumulated){
+			if(len(arr) == 0){
+				accumulated
+				} else {
+				iter(rest(arr), push(accumulated, f(first(arr))));
+			}
+		};
+	iter(arr,[]);
+};`
+
+const SUM = `moonvar sum = fn(arr){reduce(arr, 0, fn(initial,el){ initial + el });};`
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := Object.NewEnvironment()
-	var cont = 0
+	injectBuiltin := []string{0: MAP, 1: REDUCE, 2: SUM}
 
 	for {
 		// Gambiarra que injeta um map como builtin
-		if cont == 0 {
-			MAP := `moonvar map = fn(arr,f){
-						moonvar iter = fn(arr,accumulated){
-							if(len(arr) == 0){
-								accumulated
-								} else {
-								iter(rest(arr), push(accumulated, f(first(arr))));
-							}
-						};
-					iter(arr,[]);
-				};`
+		for i := 0; i <= len(injectBuiltin)-1; i++ {
 
-			l := Lexer.New(MAP)
+			l := Lexer.New(injectBuiltin[i])
 			p := Parser.New(l)
 
 			program := p.ParseProgram()
 
 			Evaluator.Eval(program, env)
-			cont += 1
+
 		}
 
 		fmt.Printf(PROMPT)
