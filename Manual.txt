@@ -42,7 +42,7 @@ ao executar p.parseIntegerLiteral, teremos o lado direito da operação, no caso
 
 Dessa forma no final nossa expressão ficara como AST{Token: Token.Minus, Operator: "-", Right: 5}
 
-
+/////////// PRATT ///////////
 Algoritmo de Parsing (Pratt)
 
 Neste exemplo usaremos a expressão: "1 + 2 + 3", mas não devemos simplesmente realizar 1 + 2 + 3
@@ -114,3 +114,53 @@ Novamente -> Algoritmo de Vaughan Pratt -> "3 + 4 - 5 * 5" -> (3 + 4)((-5) * 5)
 
 - infix = 5, sendo que não existe mais nada a frente. Ou seja, isso irá retornar la na segunda vez que ela for chama como uma expressão infix(5,5), que voltará mais um nivel e sera vista
 como infix(infix(3,4), infix(5,5)) 
+
+/////////// PRATT ///////////
+
+A partir dai, todas as proximas funções vao basicamente se basear no Algoritmo de Pratt,
+quando precisamos parsear uma expression, deixamos esse trabalho ao Algoritmo, a unica coisa
+que nosso programa deve tomar cuidado é com abertura de parenteses e chaves e também conseguir
+lidar com blockStatements. Comentarios foram adicionados nas funções necessarias
+
+// Evaluation //
+
+Nesta parte, transformamos os tokens, agora organizados de forma correta em valores reais
+
+Primeiro temos que criar objetos para identificar cada elemento do nosso programa e dar eles sentido
+
+Apos termos objetos referentes aos tres tipos, null, integer e boolean, precisamos criar uma arvore de decisoes
+na qual de acordo com o "node.(type)",que é o tipo do node atual, avaliaremos a sentença de uma determinada forma
+
+* Se ela for um inteiro, simplesmente retornaremos esse valor wrappeado num &object.Integer{Value: node.Value}
+
+* Se for uma expressão, entraremos em um loop recursivo referente ao "tree-walking-interpreter", essa recursividade serve para buscar o case referente a aquela expressão
+
+* Se for um boolean, será igual o inteiro, retornaremos &object.Boolean{Value: node.Value}
+
+* Se for uma prefixExpression, iremos pegar o seu lado direito (que é ou um numero ou um booleano) e retornarmos evalPrefixExpression()
+que vai tomar a decisão do que fazer quando o valor da esquerda é um "!" ou "-" e como ele deve se comportar perante ao valor da direita
+
+* Se for uma infixEXpression, precisaremos avaliar tanto o lado direito como o esquerdo (separados), e depois avaliar esses dois lados juntos
+Quando avaliamos eles juntos, verificamos se ambos são inteiros, se eles são "==" ou "!=", no primeiro caso delegamos ao "parseador" de inteiros
+que avalia a condição em Bool(<,>,==,!=) ou não bool(+,-,/,*) e a partir disso retorna ou inteiro ou um valor booleano
+
+* Se for um ifStatement, avaliamos a condição que nos foi passada, a partir disso verificamos se ela é verdadeira ou false
+e então avaliamos cada ramo (se for verdadeiro ou se for falso)
+
+* Se for um returnStatement, devemos avaliar o valor de retorno e dps fazer um wrap desse valor em um &object.ReturnValue{}
+
+* Temos também de fazer com que o return dentro de um block seja mais "importante" que um de fora, para isso criamos um loop
+aonde na parte de fora:
+
+Parte do programa:
+if returnValue, ok := result.(*object.ReturnValue); ok {
+    return returnValue.Value}
+
+Parte do BlockStatement:
+if result !=nil && result.Type() == object.RETURN_VALUE_OBJ {
+    return result}
+
+ou seja, primeiro checamos por return dentro do bloco, se caso ele não ocorrer, eventualmente chegaremos ao return de fora mas
+se o de dentro chegar antes, precisamos retornar imediatamente (ao macaco)
+
+* MoonvarStatement -> Para salvarmos variaveis, temos que criar um hash no environment pra poder "lembrar" o que cara variavel significa

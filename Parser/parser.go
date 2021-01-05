@@ -83,6 +83,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	return p
 }
 
+// Retorna um wrape de AST.Identifier contendo o Token e o valor do Identifier
 func (p *Parser) parseIdentifier() AST.Expression {
 	return &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
 }
@@ -166,6 +167,7 @@ func (p *Parser) ParseReturnStatement() *AST.ReturnStatement {
 
 	p.nextToken()
 
+	// Return (expression) -> Essa expression que estamos parseando aqui
 	statement.ReturnValue = p.parseExpression(LOWEST)
 
 	for p.peekTokenIs(Token.SEMICOLON) {
@@ -373,6 +375,7 @@ func (p *Parser) parseFunctionParameters() []*AST.Identifier {
 }
 
 // Captura a call, preenchendo seus argumentos
+// callsFunction(2,3,fn(x,y){x+y;});
 func (p *Parser) parseCallExpression(function AST.Expression) AST.Expression {
 	exp := &AST.CallExpression{Token: p.currentToken, Function: function}
 	exp.Arguments = p.parseCallArguments()
