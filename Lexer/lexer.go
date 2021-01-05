@@ -84,6 +84,10 @@ func (l *Lexer) NextToken() Token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = Token.EOF
+	case '[':
+		tok = newToken(Token.LBRACKET, l.ch)
+	case ']':
+		tok = newToken(Token.RBRACKET, l.ch)
 	default:
 		if isLetter(l.ch) { // É letra?
 			tok.Literal = l.readIdentifier() // a partir desta função retornamos a frase

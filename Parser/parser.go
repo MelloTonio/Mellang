@@ -18,6 +18,7 @@ const (
 	PRODUCT
 	PREFIX
 	CALL
+	INDEX
 )
 
 var precedences = map[Token.TokenType]int{
@@ -29,6 +30,7 @@ var precedences = map[Token.TokenType]int{
 	Token.MINUS:    SUM,
 	Token.SLASH:    PRODUCT,
 	Token.ASTERISK: PRODUCT,
+	Token.LBRACKET: INDEX,
 	Token.LPAREN:   CALL,
 }
 
@@ -64,6 +66,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.IF, p.parseIfExpression)
 	p.registerPrefix(Token.FUNCTION, p.parseFunctionLiteral)
 	p.registerPrefix(Token.STRING, p.parseStringLiteral)
+	p.registerPrefix(Token.LBRACKET, p.parseArrayLiteral)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -76,6 +79,7 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerInfix(Token.LT, p.parseInfixExpression)
 	p.registerInfix(Token.GT, p.parseInfixExpression)
 	p.registerInfix(Token.LPAREN, p.parseCallExpression)
+	p.registerInfix(Token.LBRACKET, p.parseIndexExpression)
 
 	// Duas vezes para termos valores tanto no curToken como no peekToken
 	p.nextToken()
@@ -379,10 +383,11 @@ func (p *Parser) parseFunctionParameters() []*AST.Identifier {
 // callsFunction(2,3,fn(x,y){x+y;});
 func (p *Parser) parseCallExpression(function AST.Expression) AST.Expression {
 	exp := &AST.CallExpression{Token: p.currentToken, Function: function}
-	exp.Arguments = p.parseCallArguments()
+	exp.Arguments = p.parseExpressionList(Token.RPAREN)
 	return exp
 }
 
+/*
 func (p *Parser) parseCallArguments() []AST.Expression {
 	args := []AST.Expression{}
 
@@ -408,6 +413,21 @@ func (p *Parser) parseCallArguments() []AST.Expression {
 	}
 
 	return args
+}*/
+
+func (p *Parser) parseIndexExpression(left AST.Expression) AST.Expression {
+	exp := &AST.IndexExpression{Token: p.currentToken, Left: left}
+	// Avançamos para o numero
+	p.nextToken()
+
+	// parse the number in array->[1]
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(Token.RBRACKET) {
+		return nil
+	}
+
+	return exp
 }
 
 // Transforma um string (que tem valor inteiro) em inteiro.
@@ -487,4 +507,38 @@ func (p *Parser) currPrecedence() int {
 	}
 
 	return LOWEST
+}
+
+func (p *Parser) parseArrayLiteral() AST.Expression {
+	array := &AST.ArrayLiteral{Token: p.currentToken}
+
+	array.Elements = p.parseExpressionList(Token.RBRACKET)
+
+	return array
+}
+
+func (p *Parser) parseExpressionList(end Token.TokenType) []AST.Expression {
+	list := []AST.Expression{}
+
+	if p.peekTokenIs(end) {
+		p.nextToken()
+		return list
+	}
+
+	p.nextToken()
+
+	// Inicia o "parseamento" dos argumentos chamados
+	list = append(list, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(Token.COMMA) {
+		p.nextToken()
+		p.nextToken()
+		list = append(list, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(end) {
+		return nil
+	}
+
+	return list
 }
