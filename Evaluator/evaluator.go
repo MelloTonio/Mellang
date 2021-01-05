@@ -60,6 +60,21 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		env.Set(node.Name.Value, val)
 	case *AST.Identifier:
 		return evalIdentifier(node, env)
+	case *AST.FunctionLiteral:
+		body := node.Body
+		parameters := node.Parameters
+		return &Object.Function{Parameters: parameters, Env: env, Body: body}
+	case *AST.CallExpression:
+		function := Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+		args := evalExpressions(node.Arguments, env)
+
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+		return applyFunction(function, args)
 	}
 	return nil
 }
@@ -240,4 +255,49 @@ func evalIdentifier(node *AST.Identifier, env *Object.Environment) Object.Object
 		return newError("identifier not found: " + node.Value)
 	}
 	return val
+}
+
+func evalExpressions(exps []AST.Expression, env *Object.Environment) []Object.Object {
+	var result []Object.Object
+
+	for _, e := range exps {
+		evaluated := Eval(e, env)
+		if isError(evaluated) {
+			return []Object.Object{evaluated}
+		}
+		result = append(result, evaluated)
+	}
+
+	return result
+}
+
+// Cria um novo environment para aquela função, uma especie de escopo aonde as variaveis se mantém
+func applyFunction(fn Object.Object, args []Object.Object) Object.Object {
+	function, ok := fn.(*Object.Function)
+
+	if !ok {
+		return newError("Not a function: %s", fn.Type())
+	}
+	extendedEnv := extendedFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+	return unwrapReturnValue(evaluated)
+}
+
+func extendedFunctionEnv(fn *Object.Function, args []Object.Object) *Object.Environment {
+	env := Object.NewEnclosedEnvironment(fn.Env)
+
+	for paramID, param := range fn.Parameters {
+		// Para cada parametro da função, guardamos dentro desse novo escopo o valor correspondente a ele
+		env.Set(param.Value, args[paramID])
+	}
+	return env
+}
+
+// Se encontrar um retorno, não retorne "return" e sim o valor dele, para não parar outras execuções
+func unwrapReturnValue(obj Object.Object) Object.Object {
+	if returnValue, ok := obj.(*Object.ReturnValue); ok {
+		return returnValue.Value
+	}
+
+	return obj
 }
