@@ -13,13 +13,38 @@ import (
 
 // READ EVAL PRINT LOOP
 
+var Misterious *string
+
 const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := Object.NewEnvironment()
+	var cont = 0
 
 	for {
+		// Gambiarra que injeta um map como builtin
+		if cont == 0 {
+			MAP := `moonvar map = fn(arr,f){
+						moonvar iter = fn(arr,accumulated){
+							if(len(arr) == 0){
+								accumulated
+								} else {
+								iter(rest(arr), push(accumulated, f(first(arr))));
+							}
+						};
+					iter(arr,[]);
+				};`
+
+			l := Lexer.New(MAP)
+			p := Parser.New(l)
+
+			program := p.ParseProgram()
+
+			Evaluator.Eval(program, env)
+			cont += 1
+		}
+
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
 		if !scanned {
@@ -27,6 +52,7 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
+
 		l := Lexer.New(line)
 		p := Parser.New(l)
 
