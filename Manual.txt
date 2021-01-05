@@ -163,4 +163,12 @@ if result !=nil && result.Type() == object.RETURN_VALUE_OBJ {
 ou seja, primeiro checamos por return dentro do bloco, se caso ele não ocorrer, eventualmente chegaremos ao return de fora mas
 se o de dentro chegar antes, precisamos retornar imediatamente (ao macaco)
 
-* MoonvarStatement -> Para salvarmos variaveis, temos que criar um hash no environment pra poder "lembrar" o que cara variavel significa
+* MoonvarStatement -> Para salvarmos variaveis, temos que criar um hash no environment pra poder "lembrar"
+
+// Escopo
+
+Cada vez que atribuimos uma variavel, ela é guardada num hash, porém se quisermos que isso funcione com funções dentro de funções
+precisamos criar environments especificos pra aquela função, logo, cada função carrega consigo as variaveis que ela pode enxegar,
+o nivel de visibilidade é do MAIOR para o MENOR
+
+// TODO -> Escrever sobre os evaluators
