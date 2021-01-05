@@ -45,7 +45,7 @@ TODO
 
 ## Meta
 
-Antonio Mello – [@MelloTonio](https://github.com/MelloTonio/)
+Antonio Mello Babo – [@MelloTonio](https://github.com/MelloTonio/)
 
 *It was inspired by the monkey language of the book "writing an interpreter in go - thorsten ball"*
 
