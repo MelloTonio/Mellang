@@ -19,7 +19,7 @@ We can do almost anything that a basic programming language does:
 TODO
 
 ## Usage example
-### Declarating variable
+### Variable Declaration
 ```
 moonvar myVariable = 5
 moonvar myFunction = fn(x){x + 1}
