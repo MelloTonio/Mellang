@@ -102,6 +102,8 @@ func TestNextToken(t *testing.T) {
 	
 	10 == 10;
 	10 != 9;
+	1.5
+	6.7
 	`
 
 	tests := []struct {
@@ -181,6 +183,8 @@ func TestNextToken(t *testing.T) {
 		{Token.NOT_EQ, "!="},
 		{Token.INT, "9"},
 		{Token.SEMICOLON, ";"},
+		{Token.FLOAT, "1.5"},
+		{Token.FLOAT, "6.7"},
 		{Token.EOF, ""},
 	}
 

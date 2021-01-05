@@ -94,6 +94,8 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 			return index
 		}
 		return evalIndexExpression(left, index)
+	case *AST.LiteralFloat:
+		return &Object.Float{Value: node.Value}
 	}
 	return nil
 }
@@ -174,6 +176,12 @@ func evalInfixExpression(operator string, left, right Object.Object) Object.Obje
 	switch {
 	case left.Type() == Object.INTEGER_OBJ && right.Type() == Object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case left.Type() == Object.FLOAT && right.Type() == Object.FLOAT:
+		return evalFloatInfixExpression(operator, left, right)
+	case left.Type() == Object.INTEGER_OBJ && right.Type() == Object.FLOAT:
+		return evalIntLeftFloatRight(operator, left, right)
+	case left.Type() == Object.FLOAT && right.Type() == Object.INTEGER_OBJ:
+		return evalIntRightFloatLeft(operator, left, right)
 	case operator == "==":
 		return nativeBoolToBooleanObject(left == right)
 	case operator == "!=":
@@ -210,6 +218,89 @@ func evalIntegerInfixExpression(operator string, left Object.Object, right Objec
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
 		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+func evalFloatInfixExpression(operator string, left Object.Object, right Object.Object) Object.Object {
+	leftVal := left.(*Object.Float).Value
+	rightVal := right.(*Object.Float).Value
+
+	switch operator {
+	// Non-bool
+	case "+":
+		return &Object.Float{Value: leftVal + rightVal}
+	case "-":
+		return &Object.Float{Value: leftVal - rightVal}
+	case "*":
+		return &Object.Float{Value: leftVal * rightVal}
+	case "/":
+		return &Object.Float{Value: leftVal / rightVal}
+	// Bool
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalIntLeftFloatRight(operator string, left Object.Object, right Object.Object) Object.Object {
+	leftVal := left.(*Object.Integer).Value
+	rightVal := right.(*Object.Float).Value
+
+	switch operator {
+	// Non-bool
+	case "+":
+		return &Object.Float{Value: float64(leftVal) + rightVal}
+	case "-":
+		return &Object.Float{Value: float64(leftVal) - rightVal}
+	case "*":
+		return &Object.Float{Value: float64(leftVal) * rightVal}
+	case "/":
+		return &Object.Float{Value: float64(leftVal) / rightVal}
+	// Bool
+	case "<":
+		return nativeBoolToBooleanObject(float64(leftVal) < rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(float64(leftVal) > rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(float64(leftVal) == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(float64(leftVal) != rightVal)
+	default:
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+func evalIntRightFloatLeft(operator string, left Object.Object, right Object.Object) Object.Object {
+	leftVal := left.(*Object.Float).Value
+	rightVal := right.(*Object.Integer).Value
+
+	switch operator {
+	// Non-bool
+	case "+":
+		return &Object.Float{Value: leftVal + float64(rightVal)}
+	case "-":
+		return &Object.Float{Value: leftVal - float64(rightVal)}
+	case "*":
+		return &Object.Float{Value: leftVal * float64(rightVal)}
+	case "/":
+		return &Object.Float{Value: leftVal / float64(rightVal)}
+	// Bool
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < float64(rightVal))
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > float64(rightVal))
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == float64(rightVal))
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != float64(rightVal))
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}

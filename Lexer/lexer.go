@@ -1,6 +1,9 @@
 package Lexer
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Mellotonio/Andrei_lang/Token"
 )
 
@@ -94,8 +97,14 @@ func (l *Lexer) NextToken() Token.Token {
 			tok.Type = Token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = Token.INT
+			// tok.Type = Token.INT
 			tok.Literal = l.readNumber()
+			if strings.Contains(tok.Literal, ".") == true {
+				tok.Type = Token.FLOAT
+			} else {
+				tok.Type = Token.INT
+			}
+
 			return tok
 		} else {
 			tok = newToken(Token.ILLEGAL, l.ch)
@@ -131,17 +140,33 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func isDigit(ch byte) bool {
-	return '0' <= ch && ch <= '9'
+	return '0' <= ch && ch <= '9' || ch == '.'
 }
 
 func (l *Lexer) readNumber() string {
 	first_position := l.position
+	var number string
+	var position_middle int
+	var i_have_dot bool
 
 	for isDigit(l.ch) {
+		if l.ch == '.' {
+			number = l.input[first_position:l.position]
+			number = fmt.Sprintf("%s", number)
+			position_middle = l.position
+			i_have_dot = true
+		}
 		l.readChar()
 	}
 
-	return l.input[first_position:l.position]
+	floatin := fmt.Sprintf("%s%s", number, l.input[position_middle:l.position])
+
+	if i_have_dot {
+		return floatin
+	} else {
+		return l.input[first_position:l.position]
+	}
+
 }
 
 func (l *Lexer) peekChar() byte {

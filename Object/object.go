@@ -19,6 +19,7 @@ const (
 	STRING           = "STRING"
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
+	FLOAT            = "FLOAT"
 	ERROR_OBJ        = "ERROR"
 )
 
@@ -119,3 +120,10 @@ func (ao *Array) Inspect() string {
 	out.WriteString("]")
 	return out.String()
 }
+
+type Float struct {
+	Value float64
+}
+
+func (b *Float) Type() ObjectType { return FLOAT }
+func (b *Float) Inspect() string  { return fmt.Sprintf("%f", b.Value) }

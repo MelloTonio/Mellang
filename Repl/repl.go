@@ -40,19 +40,24 @@ const SUM = `moonvar sum = fn(arr){reduce(arr, 0, fn(initial,el){ initial + el }
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := Object.NewEnvironment()
+	cont := 0
 	injectBuiltin := []string{0: MAP, 1: REDUCE, 2: SUM}
 
 	for {
-		// Gambiarra que injeta um map como builtin
-		for i := 0; i <= len(injectBuiltin)-1; i++ {
+		if cont == 0 {
+			// Gambiarra que injeta funções builtin
+			for i := 0; i <= len(injectBuiltin)-1; i++ {
 
-			l := Lexer.New(injectBuiltin[i])
-			p := Parser.New(l)
+				l := Lexer.New(injectBuiltin[i])
+				p := Parser.New(l)
 
-			program := p.ParseProgram()
+				program := p.ParseProgram()
 
-			Evaluator.Eval(program, env)
+				Evaluator.Eval(program, env)
 
+			}
+
+			cont += 1
 		}
 
 		fmt.Printf(PROMPT)

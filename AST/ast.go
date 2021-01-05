@@ -145,6 +145,15 @@ type LiteralInteger struct {
 	Value int64
 }
 
+type LiteralFloat struct {
+	Token Token.Token
+	Value float64
+}
+
+func (lf *LiteralFloat) expressionNode()      {}
+func (lf *LiteralFloat) TokenLiteral() string { return lf.Token.Literal }
+func (lf *LiteralFloat) String() string       { return lf.Token.Literal }
+
 func (mv *MoonvarStatement) statementNode()       {}
 func (mv *MoonvarStatement) TokenLiteral() string { return mv.Token.Literal }
 

@@ -197,3 +197,18 @@ func testNullObject(t *testing.T, obj Object.Object) bool {
 	}
 	return true
 }
+
+func testFloatLiteral(t *testing.T) {
+	input := `1.4`
+
+	evaluated := testEval(input)
+	float, ok := evaluated.(*Object.Float)
+
+	if !ok {
+		t.Fatalf("Object is String, got=%T (%v)", evaluated, evaluated)
+	}
+
+	if float.Value != 1.4 {
+		t.Errorf("Float has wrong Value %f", float.Value)
+	}
+}
