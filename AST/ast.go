@@ -101,6 +101,28 @@ type IndexExpression struct {
 	Index Expression
 }
 
+type BindExpression struct {
+	Token Token.Token // The := token
+	Left  string
+	Value Expression
+}
+
+func (be *BindExpression) expressionNode() {}
+
+// TokenLiteral prints the literal value of the token associated with this node
+func (be *BindExpression) TokenLiteral() string { return be.Token.Literal }
+
+// String returns a stringified version of the AST for debugging
+func (be *BindExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(be.Left)
+	out.WriteString(be.TokenLiteral())
+	out.WriteString(be.Value.String())
+
+	return out.String()
+}
+
 func (ie *IndexExpression) expressionNode()      {}
 func (ie *IndexExpression) TokenLiteral() string { return ie.Token.Literal }
 func (ie *IndexExpression) String() string {

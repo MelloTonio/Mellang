@@ -92,6 +92,17 @@ func New(lexer *Lexer.Lexer) *Parser {
 
 // Retorna um wrape de AST.Identifier contendo o Token e o valor do Identifier
 func (p *Parser) parseIdentifier() AST.Expression {
+	if p.peekTokenIs(Token.BIND) {
+		binder := &AST.BindExpression{Token: p.currentToken, Left: p.currentToken.Literal}
+
+		p.nextToken()
+		p.nextToken()
+
+		binder.Value = p.parseExpression(LOWEST)
+
+		return binder
+	}
+
 	return &AST.Identifier{Token: p.currentToken, Value: p.currentToken.Literal}
 }
 

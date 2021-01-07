@@ -58,6 +58,9 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+	case *AST.BindExpression:
+		val := Eval(node.Value, env)
+		evalBindExpressions(node.Left, val, env)
 	case *AST.Identifier:
 		return evalIdentifier(node, env)
 	case *AST.FunctionLiteral:
@@ -383,6 +386,10 @@ func isError(obj Object.Object) bool {
 		return obj.Type() == Object.ERROR_OBJ
 	}
 	return false
+}
+
+func evalBindExpressions(name string, val Object.Object, env *Object.Environment) {
+	env.Set(name, val)
 }
 
 func evalIdentifier(node *AST.Identifier, env *Object.Environment) Object.Object {

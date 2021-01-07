@@ -25,6 +25,7 @@ const (
 
 	EQ     = "=="
 	NOT_EQ = "!="
+	BIND   = "->"
 
 	// Delimitadores
 	COMMA     = ","

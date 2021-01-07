@@ -71,7 +71,13 @@ func (l *Lexer) NextToken() Token.Token {
 	case ':':
 		tok = newToken(Token.COLON, l.ch)
 	case '<':
-		tok = newToken(Token.LT, l.ch)
+		if l.peekChar() == '-' {
+			ch := l.ch
+			l.readChar()
+			tok = Token.Token{Type: Token.BIND, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(Token.LT, l.ch)
+		}
 	case '>':
 		tok = newToken(Token.GT, l.ch)
 	case ';':
