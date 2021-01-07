@@ -143,12 +143,10 @@ var builtins = map[string]*Object.Builtin{
 
 		},
 	},
-	"pop": &Object.Builtin{
+	"plsShow": &Object.Builtin{
 		Fn: func(args ...Object.Object) Object.Object {
-			for _, arg := range args {
-				return &Object.String{Value: arg.Inspect()}
-			}
-			return NULL
+			fmt.Println(args[0].Inspect())
+			return nil
 		},
 	},
 	"Strcomp": &Object.Builtin{
