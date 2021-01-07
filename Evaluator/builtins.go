@@ -151,4 +151,13 @@ var builtins = map[string]*Object.Builtin{
 			return NULL
 		},
 	},
+	"Strcomp": &Object.Builtin{
+		Fn: func(args ...Object.Object) Object.Object {
+			to_be_changed := args[0].(*Object.String)
+			to_remove := args[1].(*Object.String)
+
+			return &Object.Boolean{Value: *to_be_changed == *to_remove}
+
+		},
+	},
 }
