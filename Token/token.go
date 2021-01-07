@@ -47,6 +47,7 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
+	WHILE    = "WHILE"
 )
 
 type Token struct {
@@ -58,6 +59,7 @@ var keywords = map[string]TokenType{
 	"fn":      FUNCTION,
 	"moonvar": MOONVAR,
 	"true":    TRUE,
+	"while":   WHILE,
 	"false":   FALSE,
 	"if":      IF,
 	"else":    ELSE,

@@ -101,6 +101,8 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		return &Object.Float{Value: node.Value}
 	case *AST.HashLiteral:
 		return evalHashLiteral(node, env)
+	case *AST.WhileExpression:
+		return evalWhileExpression(node, env)
 	}
 	return nil
 }
@@ -500,4 +502,24 @@ func evalHashIndexExpression(hash, index Object.Object) Object.Object {
 		return NULL
 	}
 	return pair.Value
+}
+
+func evalWhileExpression(we *AST.WhileExpression, env *Object.Environment) Object.Object {
+	var result Object.Object
+
+	for {
+		condition := Eval(we.Condition, env)
+		if isError(condition) {
+			return condition
+		}
+
+		if isTruthy(condition) {
+			result = Eval(we.Consequence, env)
+		} else {
+			break
+		}
+	}
+
+	return result
+
 }
