@@ -60,7 +60,10 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		env.Set(node.Name.Value, val)
 	case *AST.BindExpression:
 		val := Eval(node.Value, env)
-		evalBindExpressions(node.Left, val, env)
+		err := evalBindExpressions(node.Left, val, env)
+		if err != nil {
+			return err
+		}
 	case *AST.Identifier:
 		return evalIdentifier(node, env)
 	case *AST.FunctionLiteral:
@@ -390,8 +393,16 @@ func isError(obj Object.Object) bool {
 	return false
 }
 
-func evalBindExpressions(name string, val Object.Object, env *Object.Environment) {
-	env.Set(name, val)
+func evalBindExpressions(name string, val Object.Object, env *Object.Environment) Object.Object {
+	variable, _ := env.Get(name)
+
+	if variable != nil {
+		env.Set(name, val)
+	} else {
+		return newError("identifier " + name + " not found!")
+	}
+	return nil
+
 }
 
 func evalIdentifier(node *AST.Identifier, env *Object.Environment) Object.Object {
