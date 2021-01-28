@@ -1,7 +1,14 @@
 # :melon: Mellang :melon:
 > Mellang, an interpreted programming language
 
-We can do almost anything that a basic programming language does:
+### Mellang VSCode Extension 
+> You can download it on https://marketplace.visualstudio.com/items?itemName=Mello.mellang
+
+</br>
+
+
+<h3> Mellang can do almost anything that a basic programming language does: </h3>
+
 ### Types
 
 Mellang has the following data types: `null`, `bool`, `int`, `str`, `array`,
@@ -175,7 +182,8 @@ correct, an integer
 
 ## Development setup
 
-TODO
+After dowloading the Mellang VSCode Extension, you have to create a ".mel" file on the root of the project and specify the filename after running the "main.go".
+
 
 ## Meta
 
