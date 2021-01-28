@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Mellotonio/Andrei_lang/Object"
 )
@@ -17,7 +18,7 @@ var builtins = map[string]*Object.Builtin{
 			}
 			switch arg := args[0].(type) {
 			case *Object.String:
-				return &Object.Integer{Value: int64(len(arg.Value))}
+				return &Object.Integer{Value: int64(utf8.RuneCountInString(arg.Value))}
 			case *Object.Array:
 				return &Object.Integer{Value: int64(len(arg.Elements))}
 			default:

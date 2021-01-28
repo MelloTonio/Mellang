@@ -218,6 +218,9 @@ func evalIntegerInfixExpression(operator string, left Object.Object, right Objec
 	case "*":
 		return &Object.Integer{Value: leftVal * rightVal}
 	case "/":
+		if rightVal == 0 {
+			return newError("attempted division by zero")
+		}
 		return &Object.Integer{Value: leftVal / rightVal}
 	// Bool
 	case "<":
@@ -245,6 +248,9 @@ func evalFloatInfixExpression(operator string, left Object.Object, right Object.
 	case "*":
 		return &Object.Float{Value: leftVal * rightVal}
 	case "/":
+		if rightVal == 0 {
+			return newError("attempted division by zero")
+		}
 		return &Object.Float{Value: leftVal / rightVal}
 	// Bool
 	case "<":
