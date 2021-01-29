@@ -1,5 +1,10 @@
 moonvar x = 5;
 
+moonvar a = 10
+moonvar b = 10
+moonvar c = if (b >= a) { 99 } else { 100 }
+
+
 moonvar myList = [1,2,3,4,5]
 
 moonvar fib = fn(x){ 

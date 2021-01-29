@@ -49,7 +49,13 @@ Mellang supports `if` and `else`:
 >> b <- a * 2
 >> c <- if (b > a) { 99 } else { 100 }
 >> c
-99
+> 99
+
+>> a <- 10
+>> b <- 10
+>> c <- if (b >= a) { 99 } else { 100 }
+>> c
+> 99
 ```
 ## Installation
 
