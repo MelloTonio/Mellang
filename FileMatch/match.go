@@ -3,6 +3,7 @@ package FileMatch
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -29,11 +30,16 @@ func WalkMatch(root, pattern string) ([]string, error) {
 }
 
 func FindFilename() string {
+	var newStr []string
+
 	myDir, _ := os.Getwd()
 	myString, _ := WalkMatch(myDir, "*.mel")
 
-	newStr := strings.Split(myString[0], "/")
+	newStr = strings.Split(myString[0], "/")
 
+	if runtime.GOOS == "windows" {
+		newStr = strings.Split(myString[0], "\\")
+	}
 	return newStr[len(newStr)-1]
 
 }
