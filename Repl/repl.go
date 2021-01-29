@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 
 	"github.com/Mellotonio/Andrei_lang/Evaluator"
 	"github.com/Mellotonio/Andrei_lang/Lexer"
@@ -37,11 +38,13 @@ const MAP = `moonvar map = fn(arr,f){
 
 const SUM = `moonvar sum = fn(arr){reduce(arr, 0, fn(initial,el){ initial + el });};`
 
-func Start(in io.Reader, out io.Writer) {
+func Start(in io.Reader, out io.Writer, filename string) {
+	FILE, _ := ioutil.ReadFile(filename)
+
 	scanner := bufio.NewScanner(in)
 	env := Object.NewEnvironment()
 	cont := 0
-	injectBuiltin := []string{0: MAP, 1: REDUCE, 2: SUM}
+	injectBuiltin := []string{0: MAP, 1: REDUCE, 2: SUM, 3: string(FILE)}
 
 	for {
 		if cont == 0 {

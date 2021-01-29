@@ -1,0 +1,13 @@
+moonvar x = 5;
+
+moonvar myList = [1,2,3,4,5]
+
+moonvar fib = fn(x){ 
+    if (x <= 1){
+        return x
+    }
+
+    return fib(x-1) + fib(x-2)
+}
+
+moonvar myFib = fib(10)

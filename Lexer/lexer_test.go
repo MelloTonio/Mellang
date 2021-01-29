@@ -104,7 +104,9 @@ func TestNextToken(t *testing.T) {
 	10 != 9;
 	1.5
 	6.7
-	five := 5
+	five <- 5
+	<=
+	>=
 	`
 
 	tests := []struct {
@@ -187,8 +189,10 @@ func TestNextToken(t *testing.T) {
 		{Token.FLOAT, "1.5"},
 		{Token.FLOAT, "6.7"},
 		{Token.IDENT, "five"},
-		{Token.BIND, ":="},
+		{Token.BIND, "<-"},
 		{Token.INT, "5"},
+		{Token.LTE, "<="},
+		{Token.GTE, ">="},
 		{Token.EOF, ""},
 	}
 
