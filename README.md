@@ -209,7 +209,10 @@ correct, an integer
   Print something in the screen.
 - `Strcomp(string,string)`
   Compare the pointers of two strings.
-
+- `String_Upcase(string)`
+  Upcase an entire string.
+- `String_Split(string)`
+  Split a string into array
 
 ## Development setup
 
