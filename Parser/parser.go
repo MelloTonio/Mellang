@@ -240,6 +240,13 @@ func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 
 func (p *Parser) parseOWOExpression() AST.Expression {
 	OwO := &AST.OwOExpression{Token: p.currentToken}
+	
+	if p.peekTokenIs(Token.EOF) {
+		msg := fmt.Sprintf("Empty OwO Expression!")
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
 
 	for !p.peekTokenIs(Token.EOF) {
 		p.nextToken()
