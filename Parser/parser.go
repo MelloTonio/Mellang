@@ -240,18 +240,19 @@ func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 
 func (p *Parser) parseOWOExpression() AST.Expression {
 	OwO := &AST.OwOExpression{Token: p.currentToken}
-	
+
 	if p.peekTokenIs(Token.EOF) {
 		msg := fmt.Sprintf("Empty OwO Expression!")
 		p.errors = append(p.errors, msg)
 		return nil
 	}
 
-
 	for !p.peekTokenIs(Token.EOF) {
 		p.nextToken()
 		if p.currentTokenIs(Token.NEXT) {
 			continue
+		} else if p.currentTokenIs(Token.SEMICOLON) {
+			return OwO
 		} else {
 			myNewExp := p.parseExpression(1)
 			OwO.Expressions = append(OwO.Expressions, myNewExp)
