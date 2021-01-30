@@ -73,6 +73,11 @@ type IfExpression struct {
 	Alternative *BlockStatement
 }
 
+type OwOExpression struct {
+	Token       Token.Token
+	Expressions []Expression
+}
+
 type BlockStatement struct {
 	Token      Token.Token // { token
 	Statements []Statement
@@ -121,6 +126,16 @@ func (be *BindExpression) String() string {
 	out.WriteString(be.Value.String())
 
 	return out.String()
+}
+
+func (be *OwOExpression) expressionNode() {}
+
+// TokenLiteral prints the literal value of the token associated with this node
+func (be *OwOExpression) TokenLiteral() string { return be.Token.Literal }
+
+// String returns a stringified version of the AST for debugging
+func (be *OwOExpression) String() string {
+	return ""
 }
 
 func (ie *IndexExpression) expressionNode()      {}

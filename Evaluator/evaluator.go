@@ -46,6 +46,57 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		return evalBlockStatement(node, env)
 	case *AST.IfExpression:
 		return evalIfExpression(node, env)
+	case *AST.OwOExpression:
+		// i will refactor this junk...........
+		// Inspired by elixir |>
+		// OwO (value) ~> func(value) ~> func(func(value)) ...
+		var myVar []AST.Expression
+		var result []Object.Object
+
+		// Get the first entry value
+		x := node.Expressions[0]
+		myVar = append(myVar, x)
+
+		// Get the first Func
+		y := node.Expressions[1]
+
+		function := Eval(y, env)
+
+		args := evalExpressions(myVar, env)
+
+		// Produce a value between func(entry valur)
+		newValue := applyFunction(function, args)
+
+		result = append(result, newValue)
+
+		// Cut func and entry value from the expressions
+		node.Expressions = node.Expressions[2:]
+
+		for _, v := range node.Expressions {
+			var tempValue []Object.Object
+			switch v.(type) {
+			// If there is more functions in "expressions"
+			case *AST.Identifier:
+				tempValue = append(tempValue, result[0])
+				// We have to Eval it
+				function := Eval(v, env)
+
+				// Produce a new value between the last value and this function
+				newValue := applyFunction(function, tempValue)
+
+				// Reset value[0]
+				result = nil
+
+				// Keep this value at [0]
+				result = append(result, newValue)
+
+				// Reset tempValue
+				tempValue = nil
+			}
+		}
+
+		return result[0]
+
 	case *AST.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
 		if isError(val) {
@@ -181,6 +232,24 @@ func evalMinusOperatorExpression(right Object.Object) Object.Object {
 	value := right.(*Object.Integer).Value
 	return &Object.Integer{Value: -value}
 }
+
+/*func evalOwOExpression(node []AST.Expression, env *Object.Environment) Object.Object {
+	var zape []Object.Object
+
+	mailove := Eval(node[0], env)
+
+	for _, v := range node {
+		if v.TokenLiteral() == "fn" {
+			v.(*AST.FunctionLiteral).Parameters = mailove
+		}
+		x := Eval(v, env)
+		zape = append(zape, x)
+	}
+
+	fmt.Println(zape)
+
+	return &Object.Array{Elements: zape}
+}*/
 
 func evalInfixExpression(operator string, left, right Object.Object) Object.Object {
 	switch {

@@ -1,4 +1,3 @@
-moonvar x = 5;
 
 moonvar a = 10
 moonvar b = 10
@@ -16,3 +15,9 @@ moonvar fib = fn(x){
 }
 
 moonvar myFib = fib(10)
+
+moonvar funcOne = fn(x){x*10}
+
+moonvar TEST = fn(x){x * 2}
+
+moonvar binder = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne

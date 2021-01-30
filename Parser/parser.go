@@ -72,6 +72,8 @@ func New(lexer *Lexer.Lexer) *Parser {
 	p.registerPrefix(Token.LBRACE, p.parseHashLiteral)
 	p.registerPrefix(Token.LBRACKET, p.parseArrayLiteral)
 	p.registerPrefix(Token.WHILE, p.parseWhileExpression)
+	p.registerPrefix(Token.OwO, p.parseOWOExpression)
+	p.registerPrefix(Token.NEXT, p.parseOWOExpression)
 
 	// Registro de cada função que deve ser chamada ao encontrar determinado "infix"
 	p.infixParseFns = make(map[Token.TokenType]infixParseFn)
@@ -234,6 +236,22 @@ func (p *Parser) ParseExpressionStatement() *AST.ExpressionStatement {
 	}
 
 	return statement
+}
+
+func (p *Parser) parseOWOExpression() AST.Expression {
+	OwO := &AST.OwOExpression{Token: p.currentToken}
+
+	for !p.peekTokenIs(Token.EOF) {
+		p.nextToken()
+		if p.currentTokenIs(Token.NEXT) {
+			continue
+		} else {
+			myNewExp := p.parseExpression(1)
+			OwO.Expressions = append(OwO.Expressions, myNewExp)
+		}
+	}
+
+	return OwO
 }
 
 func (p *Parser) parseExpression(precedence int) AST.Expression {

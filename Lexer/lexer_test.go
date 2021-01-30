@@ -107,6 +107,8 @@ func TestNextToken(t *testing.T) {
 	five <- 5
 	<=
 	>=
+	OwO
+	~>
 	`
 
 	tests := []struct {
@@ -193,6 +195,8 @@ func TestNextToken(t *testing.T) {
 		{Token.INT, "5"},
 		{Token.LTE, "<="},
 		{Token.GTE, ">="},
+		{Token.OwO, "OwO"},
+		{Token.NEXT, "~>"},
 		{Token.EOF, ""},
 	}
 

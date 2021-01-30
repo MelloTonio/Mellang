@@ -92,6 +92,12 @@ func (l *Lexer) NextToken() Token.Token {
 		}
 	case ';':
 		tok = newToken(Token.SEMICOLON, l.ch)
+	case '~':
+		if l.peekChar() == '>' {
+			ch := l.ch
+			l.readChar()
+			tok = Token.Token{Type: Token.NEXT, Literal: string(ch) + string(l.ch)}
+		}
 	case ',':
 		tok = newToken(Token.COMMA, l.ch)
 	case '{':

@@ -28,6 +28,7 @@ const (
 	EQ     = "=="
 	NOT_EQ = "!="
 	BIND   = "->"
+	NEXT   = "~>"
 
 	// Delimitadores
 	COMMA     = ","
@@ -50,6 +51,7 @@ const (
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
 	WHILE    = "WHILE"
+	OwO      = "OwO"
 )
 
 type Token struct {
@@ -58,6 +60,7 @@ type Token struct {
 }
 
 var keywords = map[string]TokenType{
+	"OwO":     OwO,
 	"fn":      FUNCTION,
 	"moonvar": MOONVAR,
 	"true":    TRUE,
