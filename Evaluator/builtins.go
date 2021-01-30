@@ -159,4 +159,27 @@ var builtins = map[string]*Object.Builtin{
 
 		},
 	},
+	"String_Upcase": &Object.Builtin{
+		Fn: func(args ...Object.Object) Object.Object {
+			to_be_changed := args[0]
+			return &Object.String{Value: strings.ToUpper(to_be_changed.Inspect())}
+
+		},
+	},
+	"String_Split": &Object.Builtin{
+		Fn: func(args ...Object.Object) Object.Object {
+			var objectArray []Object.Object
+
+			to_be_changed := args[0]
+
+			x := strings.Split(to_be_changed.Inspect(), " ")
+
+			for _, v := range x {
+				objectArray = append(objectArray, &Object.String{Value: v})
+			}
+
+			return &Object.Array{Elements: objectArray}
+
+		},
+	},
 }
