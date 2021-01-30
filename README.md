@@ -40,6 +40,19 @@ anotherVar <- 5
 12
 ```
 
+### OwO Operators
+```
+moonvar funcOne = fn(x){x*10}
+
+moonvar TEST = fn(x){x * 2}
+
+moonvar ac = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne
+(10 * 10 * 2 * 10 * 10 * 10)
+
+>> ac
+> 200000
+```
+
 ### Conditional Expressions
 
 Mellang supports `if` and `else`:
