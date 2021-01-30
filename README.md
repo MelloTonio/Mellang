@@ -51,6 +51,18 @@ moonvar ac = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne
 
 >> ac
 > 200000
+
+moonvar myList = [1,2,3,4,5]
+
+moonvar sumList = fn(list){map(list, TestTWO)}
+
+OwO myList ~> sumList ~> sumList
+>[5,6,7,8,9]
+
+moonvar elixirLike = OwO "Eae Beleza" ~> String_Upcase ~> String_Split
+>[EAE, BELEZA?]
+
+
 ```
 
 ### Conditional Expressions
