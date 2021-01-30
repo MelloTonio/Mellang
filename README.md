@@ -42,9 +42,9 @@ anotherVar <- 5
 
 ### OwO Operators
 ```
-moonvar funcOne = fn(x){x*10}
+moonvar funcOne = fn(x){x *10}
 
-moonvar TEST = fn(x){x * 2}
+moonvar TEST = fn(x,y){(x * 2)+y}
 
 moonvar ac = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne
 (10 * 10 * 2 * 10 * 10 * 10)

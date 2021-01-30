@@ -7,7 +7,7 @@ moonvar c = if (b >= a) { 99 } else { 100 }
 moonvar myList = [1,2,3,4,5]
 
 moonvar fib = fn(x){ 
-    if (x <= 1){
+    if (x <= 1) {
         return x
     }
 
@@ -20,4 +20,7 @@ moonvar funcOne = fn(x){x*10}
 
 moonvar TEST = fn(x){x * 2}
 
-moonvar binder = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne
+moonvar TestTWO = fn(x){x + 2}
+
+moonvar binder = OwO 10 ~> funcOne ~> TEST ~> TestTWO
+

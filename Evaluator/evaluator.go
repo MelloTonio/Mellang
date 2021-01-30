@@ -47,53 +47,11 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 	case *AST.IfExpression:
 		return evalIfExpression(node, env)
 	case *AST.OwOExpression:
-		// i will refactor this junk...........
 		// Inspired by elixir |>
 		// OwO (value) ~> func(value) ~> func(func(value)) ...
-		var myVar []AST.Expression
 		var result []Object.Object
 
-		// Get the first entry value
-		x := node.Expressions[0]
-		myVar = append(myVar, x)
-
-		// Get the first Func
-		y := node.Expressions[1]
-
-		function := Eval(y, env)
-
-		args := evalExpressions(myVar, env)
-
-		// Produce a value between func(entry valur)
-		newValue := applyFunction(function, args)
-
-		result = append(result, newValue)
-
-		// Cut func and entry value from the expressions
-		node.Expressions = node.Expressions[2:]
-
-		for _, v := range node.Expressions {
-			var tempValue []Object.Object
-			switch v.(type) {
-			// If there is more functions in "expressions"
-			case *AST.Identifier:
-				tempValue = append(tempValue, result[0])
-				// We have to Eval it
-				function := Eval(v, env)
-
-				// Produce a new value between the last value and this function
-				newValue := applyFunction(function, tempValue)
-
-				// Reset value[0]
-				result = nil
-
-				// Keep this value at [0]
-				result = append(result, newValue)
-
-				// Reset tempValue
-				tempValue = nil
-			}
-		}
+		EvalOwOExpression(node.Expressions, &result, env)
 
 		return result[0]
 
@@ -208,6 +166,53 @@ func evalPrefixExpression(operator string, right Object.Object) Object.Object {
 		return evalMinusOperatorExpression(right)
 	default:
 		return newError("unknown operator: %s%s", operator, right.Type())
+	}
+}
+
+func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, env *Object.Environment) {
+	var myVar []AST.Expression
+	// Get the first entry value
+	x := expressions[0]
+	myVar = append(myVar, x)
+
+	// Get the first Func
+	y := expressions[1]
+
+	function := Eval(y, env)
+
+	args := evalExpressions(myVar, env)
+
+	// Produce a value between func(entry valur)
+	newValue := applyFunction(function, args)
+
+	*result = append(*result, newValue)
+
+	// Cut func and entry value from the expressions
+	expressions = expressions[2:]
+
+	for _, v := range expressions {
+		//	var tempValue []Object.Object
+		switch v.(type) {
+		// If there is more functions in "expressions"
+		case *AST.Identifier:
+			//tempValue = append(tempValue, result)
+			// We have to Eval it
+			function := Eval(v, env)
+
+			// Produce a new value between the last value and this function
+			newValue := applyFunction(function, *result)
+
+			// Reset value[0]
+			*result = nil
+
+			// Keep this value at [0]
+			*result = append(*result, newValue)
+
+			// Reset tempValue
+			//tempValue = nil
+
+		}
+
 	}
 }
 
