@@ -51,9 +51,9 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		// OwO (value) ~> func(value) ~> func(func(value)) ...
 		var result []Object.Object
 
-		EvalOwOExpression(node.Expressions, &result, env)
+		owoExp := EvalOwOExpression(node.Expressions, &result, env)
 
-		return result[0]
+		return (*owoExp)[0]
 
 	case *AST.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
@@ -169,7 +169,7 @@ func evalPrefixExpression(operator string, right Object.Object) Object.Object {
 	}
 }
 
-func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, env *Object.Environment) {
+func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, env *Object.Environment) *[]Object.Object {
 	var myVar []AST.Expression
 	// Get the first entry value
 	x := expressions[0]
@@ -184,23 +184,29 @@ func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, en
 
 	// Produce a value between func(entry valur)
 	newValue := applyFunction(function, args)
+	//fmt.Println(newValue)
 
 	*result = append(*result, newValue)
 
+	//fmt.Println((*result)[0])
+
+	//fmt.Println(expressions)
 	// Cut func and entry value from the expressions
 	expressions = expressions[2:]
 
+	// fmt.Println(expressions)
 	for _, v := range expressions {
-		//	var tempValue []Object.Object
+		//var tempValue []Object.Object
 		switch v.(type) {
 		// If there is more functions in "expressions"
 		case *AST.Identifier:
-			//tempValue = append(tempValue, result)
+			//	tempValue = append(tempValue, (*result)[0])
 			// We have to Eval it
 			function := Eval(v, env)
 
 			// Produce a new value between the last value and this function
 			newValue := applyFunction(function, *result)
+			//fmt.Println("inside", newValue)
 
 			// Reset value[0]
 			*result = nil
@@ -212,8 +218,12 @@ func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, en
 			//tempValue = nil
 
 		}
-
+		return result
+		// fmt.Println("resultprase", (*result)[0].Inspect())
 	}
+
+	// fmt.Println("result", (*result)[0].Inspect())
+	return nil
 }
 
 func evalBangOperatorExpression(right Object.Object) Object.Object {
