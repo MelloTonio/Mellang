@@ -54,7 +54,6 @@ func Eval(node AST.Node, env *Object.Environment) Object.Object {
 		owoExp := EvalOwOExpression(node.Expressions, &result, env)
 
 		return (*owoExp)[0]
-
 	case *AST.ReturnStatement:
 		val := Eval(node.ReturnValue, env)
 		if isError(val) {
@@ -184,15 +183,18 @@ func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, en
 
 	// Produce a value between func(entry valur)
 	newValue := applyFunction(function, args)
+
 	//fmt.Println(newValue)
 
 	*result = append(*result, newValue)
 
-	//fmt.Println((*result)[0])
-
 	//fmt.Println(expressions)
 	// Cut func and entry value from the expressions
 	expressions = expressions[2:]
+
+	if len(expressions) == 0 {
+		return result
+	}
 
 	// fmt.Println(expressions)
 	for _, v := range expressions {
@@ -208,9 +210,7 @@ func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, en
 			newValue := applyFunction(function, *result)
 			//fmt.Println("inside", newValue)
 
-			// Reset value[0]
 			*result = nil
-
 			// Keep this value at [0]
 			*result = append(*result, newValue)
 
@@ -218,12 +218,10 @@ func EvalOwOExpression(expressions []AST.Expression, result *[]Object.Object, en
 			//tempValue = nil
 
 		}
-		return result
 		// fmt.Println("resultprase", (*result)[0].Inspect())
 	}
 
-	// fmt.Println("result", (*result)[0].Inspect())
-	return nil
+	return result
 }
 
 func evalBangOperatorExpression(right Object.Object) Object.Object {

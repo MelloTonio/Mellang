@@ -23,6 +23,7 @@ const (
 	FLOAT            = "FLOAT"
 	HASH_OBJ         = "HASH"
 	ERROR_OBJ        = "ERROR"
+	OWO_OBJ          = "OWO"
 )
 
 type Object interface {
@@ -67,6 +68,16 @@ type Function struct {
 	Parameters []*AST.Identifier
 	Body       *AST.BlockStatement
 	Env        *Environment
+}
+
+type OwO struct {
+	Expressions []*AST.Expression
+	Env         *Environment
+}
+
+func (f *OwO) Type() ObjectType { return OWO_OBJ }
+func (f *OwO) Inspect() string {
+	return "hello world"
 }
 
 func (f *Function) Type() ObjectType { return FUNCTION_OBJ }

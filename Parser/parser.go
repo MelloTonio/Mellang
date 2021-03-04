@@ -252,7 +252,7 @@ func (p *Parser) parseOWOExpression() AST.Expression {
 		if p.currentTokenIs(Token.NEXT) {
 			continue
 		} else if p.currentTokenIs(Token.SEMICOLON) {
-			return OwO
+			break
 		} else {
 			myNewExp := p.parseExpression(1)
 			OwO.Expressions = append(OwO.Expressions, myNewExp)

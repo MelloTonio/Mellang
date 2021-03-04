@@ -1,8 +1,7 @@
 
 moonvar a = 10
 moonvar b = 10
-moonvar c = if (b >= a) { 99 } else { 100 }
-
+moonvar c = if (b >= a) { fn(x){x * 2} } else { fn(x){x * 3} }
 
 moonvar myList = [1,2,3,4,5]
 
@@ -22,5 +21,9 @@ moonvar TEST = fn(x){x * 2}
 
 moonvar TestTWO = fn(x){x + 2}
 
-moonvar binder = OwO 10 ~> funcOne ~> TEST ~> TestTWO
+moonvar mu = OwO 10 ~> TestTWO;
+moonvar elixirLike = OwO "Eae Beleza" ~> String_Upcase ~> String_Split;
+moonvar overflow = OwO mu ~> TestTWO ~> TestTWO ~> TestTWO ~> TestTWO;
+
+
 
