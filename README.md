@@ -201,7 +201,7 @@ correct, an integer
   Returns the first element of the array.
 - `last(iterable)`
   Returns the last element of the array.
-- `push(iterable)`
+- `push(array, element)`
   Add an element to the array.
 - `replace(string,element_to_replace,element_to_put)`
   Replace something inside a string.
