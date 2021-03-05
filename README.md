@@ -46,7 +46,7 @@ moonvar funcOne = fn(x){x *10}
 
 moonvar TEST = fn(x){x * 2}
 
-moonvar ac = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne
+moonvar ac = OwO 10 ~> funcOne ~> TEST ~> funcOne ~> funcOne ~> funcOne;
 (10 * 10 * 2 * 10 * 10 * 10)
 
 >> ac
