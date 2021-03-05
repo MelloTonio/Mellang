@@ -207,6 +207,8 @@ correct, an integer
   Replace something inside a string.
 - `plsShow(element)`
   Print something in the screen.
+- `plsShow(element, element ...)`
+  Concatenate all elements
 - `Strcomp(string,string)`
   Compare the pointers of two strings.
 - `String_Upcase(string)`
