@@ -1,5 +1,8 @@
 # :melon: Mellang :melon:
+
 > Mellang, an interpreted programming language
+
+<img src="https://www.code-inspector.com/project/20453/status/svg" />  <img src="https://www.code-inspector.com/project/20453/score/svg" /> 
 
 ### Mellang VSCode Extension 
 > You can download it on https://marketplace.visualstudio.com/items?itemName=Mello.mellang
