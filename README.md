@@ -150,7 +150,7 @@ functions that reference outer variables (*closures*).
 ```
 ### Recursive Functions
 
-Monkey also supports recursive functions including recursive functions defined
+Mellang also supports recursive functions including recursive functions defined
 in the scope of another function (*self-recursion*).
 
 ```
